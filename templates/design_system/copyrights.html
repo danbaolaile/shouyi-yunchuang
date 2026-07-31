@@ -1,0 +1,200 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('design.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">工艺管理</div>
+    <a href="{{ url_for('design.craft_processes') }}" class="menu-item"><span class="icon">⚒️</span> 传统工艺适配管理</a>
+    <a href="{{ url_for('design.product_schemes') }}" class="menu-item"><span class="icon">📦</span> 手工艺品方案管理</a>
+    <a href="{{ url_for('design.material_calc') }}" class="menu-item"><span class="icon">🧮</span> 耗材计算</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">市场分析</div>
+    <a href="{{ url_for('design.trend_forecast') }}" class="menu-item"><span class="icon">📈</span> 趋势预测</a>
+    <a href="{{ url_for('design.demand_insight') }}" class="menu-item"><span class="icon">💡</span> 需求洞察</a>
+    <a href="{{ url_for('design.design_trends') }}" class="menu-item"><span class="icon">📊</span> 设计趋势分析管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化传承</div>
+    <a href="{{ url_for('design.inheritors') }}" class="menu-item"><span class="icon">👤</span> 非遗传承人管理</a>
+    <a href="{{ url_for('design.cultural_knowledge') }}" class="menu-item"><span class="icon">📖</span> 民族文化知识管理</a>
+    <a href="{{ url_for('design.teaching_courses') }}" class="menu-item"><span class="icon">🎓</span> 工艺教学课程管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">智能设计工具</div>
+    <a href="{{ url_for('design.pattern_generator') }}" class="menu-item"><span class="icon">🎨</span> 纹样生成</a>
+    <a href="{{ url_for('design.smart_design') }}" class="menu-item"><span class="icon">🤖</span> 智能生成设计管理</a>
+    <a href="{{ url_for('design.design_efficiency') }}" class="menu-item"><span class="icon">⚡</span> 设计效能</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">订单管理</div>
+    <a href="{{ url_for('design.custom_orders') }}" class="menu-item"><span class="icon">📋</span> 定制订单跟踪管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">设计素材库</div>
+    <a href="{{ url_for('design.pattern_materials') }}" class="menu-item"><span class="icon">🖼️</span> 民族图案素材管理</a>
+    <a href="{{ url_for('design.copyrights') }}" class="menu-item active"><span class="icon">©️</span> 数字版权登记管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统设置</div>
+    <a href="{{ url_for('design.user_preferences') }}" class="menu-item"><span class="icon">⚙️</span> 偏好自适应调控</a>
+</div>
+{% endblock %}
+
+{% block page_title %}数字版权登记管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="search-bar">
+        <input type="text" placeholder="作品名称/作者" value="{{ search }}" id="searchInput">
+        <select>
+            <option value="">全部类型</option>
+            <option value="美术作品">美术作品</option>
+            <option value="设计作品">设计作品</option>
+            <option value="摄影作品">摄影作品</option>
+            <option value="图形商标">图形商标</option>
+        </select>
+        <button class="btn btn-primary" onclick="doSearch()">🔍 搜索</button>
+        <button class="btn btn-secondary" onclick="clearSearch()">🔄 清空</button>
+    </div>
+    
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新增版权登记</button>
+        <button class="btn btn-success">📤 批量登记</button>
+        <button class="btn btn-secondary">📊 版权统计</button>
+    </div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>登记编号</th>
+                <th>作品名称</th>
+                <th>作者</th>
+                <th>作品类型</th>
+                <th>登记日期</th>
+                <th>版权证书号</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in copyrights %}
+            <tr>
+                <td>{{ c.registration_id }}</td>
+                <td><strong>{{ c.work_name }}</strong></td>
+                <td>{{ c.author or '-' }}</td>
+                <td>{{ c.work_type or '-' }}</td>
+                <td>{{ c.registration_date or '-' }}</td>
+                <td>{{ c.copyright_number or '-' }}</td>
+                <td>
+                    {% if c.status == '已登记' %}
+                    <span class="status-tag status-success">{{ c.status }}</span>
+                    {% elif c.status == '审核中' %}
+                    <span class="status-tag status-warning">{{ c.status }}</span>
+                    {% else %}
+                    <span class="status-tag status-default">{{ c.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="openEditModal({{ c.id }}, '{{ c.registration_id }}', '{{ c.work_name }}', '{{ c.author or '' }}', '{{ c.work_type or '' }}', '{{ c.registration_date or '' }}', '{{ c.copyright_number or '' }}', '{{ c.status or '登记中' }}')">编辑</button>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: #999; padding: 40px;">暂无版权登记数据</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('design.copyrights', page=pagination.prev_num, search=search) }}">上一页</a>
+        {% endif %}
+        <span>共 {{ pagination.total }} 条</span>
+        {% if pagination.has_next %}
+        <a href="{{ url_for('design.copyrights', page=pagination.next_num, search=search) }}">下一页</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- 新增/编辑模态框 -->
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle">新增版权登记</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="form" method="POST">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>登记编号</label><input type="text" name="registration_id" id="f_id" required></div>
+                    <div class="form-group"><label>作品名称 *</label><input type="text" name="work_name" id="f_name" required></div>
+                    <div class="form-group"><label>作者</label><input type="text" name="author" id="f_author"></div>
+                    <div class="form-group"><label>作品类型</label>
+                        <select name="work_type" id="f_type">
+                            <option value="美术作品">美术作品</option>
+                            <option value="设计作品">设计作品</option>
+                            <option value="摄影作品">摄影作品</option>
+                            <option value="图形商标">图形商标</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>登记日期</label><input type="date" name="registration_date" id="f_date"></div>
+                    <div class="form-group"><label>版权证书号</label><input type="text" name="copyright_number" id="f_number"></div>
+                    <div class="form-group full-width"><label>登记状态</label>
+                        <select name="status" id="f_status">
+                            <option value="登记中">登记中</option>
+                            <option value="审核中">审核中</option>
+                            <option value="已登记">已登记</option>
+                            <option value="已驳回">已驳回</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button type="submit" class="btn btn-primary">确定保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function doSearch() {
+    const search = document.getElementById('searchInput').value;
+    window.location.href = '/design/copyrights?search=' + encodeURIComponent(search);
+}
+function clearSearch() {
+    window.location.href = '/design/copyrights';
+}
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = '新增版权登记';
+    document.getElementById('form').action = "{{ url_for('design.add_copyright') }}";
+    document.getElementById('form').reset();
+    document.getElementById('modal').classList.add('active');
+}
+function openEditModal(id, rid, name, author, wtype, rdate, number, status) {
+    document.getElementById('modalTitle').textContent = '编辑版权登记';
+    document.getElementById('form').action = '/design/copyrights/' + id + '/edit';
+    document.getElementById('f_id').value = rid;
+    document.getElementById('f_name').value = name;
+    document.getElementById('f_author').value = author;
+    document.getElementById('f_type').value = wtype || '美术作品';
+    document.getElementById('f_date').value = rdate;
+    document.getElementById('f_number').value = number;
+    document.getElementById('f_status').value = status || '登记中';
+    document.getElementById('modal').classList.add('active');
+}
+function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+}
+</script>
+{% endblock %}

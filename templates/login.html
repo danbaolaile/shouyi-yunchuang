@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手艺云创 - 系统登录</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        :root {
+            --theme-color: #0277BD;
+            --theme-color-light: #4FC3F7;
+        }
+        .system-tabs {
+            display: flex;
+            margin-bottom: 24px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+        .system-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 12px;
+            cursor: pointer;
+            background: #f5f5f5;
+            transition: all 0.3s;
+            border: none;
+        }
+        .system-tab.active {
+            background: var(--active-color, #0277BD);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <h2 id="systemTitle">手艺云创文化基因智能识别系统</h2>
+            
+            <div class="system-tabs">
+                <button class="system-tab active" data-system="gene" data-color="#0277BD" data-light="#4FC3F7" data-name="手艺云创文化基因智能识别系统">文化基因识别</button>
+                <button class="system-tab" data-system="database" data-color="#E09456" data-light="#F5C79A" data-name="手艺云创民族手工艺数据库系统">手工艺数据库</button>
+                <button class="system-tab" data-system="design" data-color="#26A69A" data-light="#80CBC4" data-name="手艺云创民族手工艺品智能生成设计平台">智能设计平台</button>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <input type="hidden" name="system" id="systemInput" value="gene">
+                
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" name="username" placeholder="请输入用户名" value="admin" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" name="password" placeholder="请输入密码" value="admin123" required>
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginBtn">登录系统</button>
+            </form>
+            
+            <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                默认账号：admin / admin123
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        const tabs = document.querySelectorAll('.system-tab');
+        const container = document.getElementById('loginContainer');
+        const title = document.getElementById('systemTitle');
+        const systemInput = document.getElementById('systemInput');
+        const loginBtn = document.getElementById('loginBtn');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const color = tab.dataset.color;
+                const light = tab.dataset.light;
+                const name = tab.dataset.name;
+                const system = tab.dataset.system;
+                
+                document.documentElement.style.setProperty('--theme-color', color);
+                document.documentElement.style.setProperty('--theme-color-light', light);
+                container.style.background = `linear-gradient(135deg, ${color} 0%, ${light} 100%)`;
+                loginBtn.style.background = color;
+                title.textContent = name;
+                systemInput.value = system;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('database.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">传承与发展</div>
+    <a href="{{ url_for('database.heritage_graph') }}" class="menu-item"><span class="icon">🕸️</span> 技法传承图谱</a>
+    <a href="{{ url_for('database.artisans') }}" class="menu-item"><span class="icon">👤</span> 传承人档案管理</a>
+    <a href="{{ url_for('database.trainings') }}" class="menu-item active"><span class="icon">📚</span> 技艺培训管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">作品与资源管理</div>
+    <a href="{{ url_for('database.artworks') }}" class="menu-item"><span class="icon">🎨</span> 手工艺作品管理</a>
+    <a href="{{ url_for('database.fusion') }}" class="menu-item"><span class="icon">🔀</span> 元素融合设计</a>
+    <a href="{{ url_for('database.patterns') }}" class="menu-item"><span class="icon">🔍</span> 纹样智能检索</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">数据分析</div>
+    <a href="{{ url_for('database.category_analysis') }}" class="menu-item"><span class="icon">📊</span> 工艺品类分析</a>
+    <a href="{{ url_for('database.category_stats') }}" class="menu-item"><span class="icon">📈</span> 工艺品类统计管理</a>
+    <a href="{{ url_for('database.heritage_analysis') }}" class="menu-item"><span class="icon">📉</span> 非遗传承分析</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统管理</div>
+    <a href="{{ url_for('database.backup') }}" class="menu-item"><span class="icon">💾</span> 数据备份管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">项目管理</div>
+    <a href="{{ url_for('database.projects') }}" class="menu-item"><span class="icon">📋</span> 传承项目申报管理</a>
+    <a href="{{ url_for('database.exhibitions') }}" class="menu-item"><span class="icon">🖼️</span> 展览活动管理</a>
+    <a href="{{ url_for('database.international') }}" class="menu-item"><span class="icon">🌍</span> 国际合作管理</a>
+    <a href="{{ url_for('database.institutions') }}" class="menu-item"><span class="icon">🏛️</span> 文化机构管理</a>
+</div>
+{% endblock %}
+
+{% block page_title %}技艺培训管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="search-bar">
+        <input type="text" placeholder="参与人数">
+        <select><option value="">全部考核方式</option></select>
+        <select><option value="">全部培训状态</option></select>
+        <button class="btn btn-primary">🔍 搜索</button>
+        <button class="btn btn-secondary">🔄 清空</button>
+    </div>
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openModal()">+ 新增</button>
+        <button class="btn btn-secondary">📥 导入</button>
+        <button class="btn btn-secondary">📤 生成证书</button>
+        <button class="btn btn-secondary">📊 考核统计</button>
+        <button class="btn btn-secondary">📋 培训签到</button>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th><input type="checkbox"></th>
+                <th>培训编号</th>
+                <th>培训主题</th>
+                <th>主讲人</th>
+                <th>培训日期</th>
+                <th>培训地点</th>
+                <th>参与人数</th>
+                <th>培训时长</th>
+                <th>考核方式</th>
+                <th>培训状态</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in trainings %}
+            <tr>
+                <td><input type="checkbox"></td>
+                <td>{{ t.program_id }}</td>
+                <td>{{ t.title }}</td>
+                <td>{{ t.instructor }}</td>
+                <td>{{ t.training_date }}</td>
+                <td>{{ t.location }}</td>
+                <td>{{ t.participants }}人</td>
+                <td>{{ t.duration }}</td>
+                <td>{{ t.assessment_method }}</td>
+                <td>
+                    {% if t.status == '已完成' %}
+                    <span class="status-tag status-success">{{ t.status }}</span>
+                    {% elif t.status == '进行中' %}
+                    <span class="status-tag status-warning">{{ t.status }}</span>
+                    {% else %}
+                    <span class="status-tag status-default">{{ t.status }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">新增培训项目</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('database.add_training') }}">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>培训编号</label><input type="text" name="program_id" required></div>
+                    <div class="form-group"><label>培训主题</label><input type="text" name="title" required></div>
+                    <div class="form-group"><label>主讲人</label><input type="text" name="instructor"></div>
+                    <div class="form-group"><label>培训日期</label><input type="date" name="training_date"></div>
+                    <div class="form-group"><label>培训地点</label><input type="text" name="location"></div>
+                    <div class="form-group"><label>参与人数</label><input type="number" name="participants" value="0"></div>
+                    <div class="form-group"><label>培训时长</label><input type="text" name="duration"></div>
+                    <div class="form-group"><label>考核方式</label>
+                        <select name="assessment_method">
+                            <option value="理论考试">理论考试</option>
+                            <option value="现场实操">现场实操</option>
+                            <option value="综合评定">综合评定</option>
+                            <option value="作品提交">作品提交</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width"><label>培训内容</label><textarea name="content"></textarea></div>
+                    <div class="form-group"><label>培训状态</label>
+                        <select name="status">
+                            <option value="未开始">未开始</option>
+                            <option value="进行中">进行中</option>
+                            <option value="已完成">已完成</option>
+                            <option value="已取消">已取消</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">关闭</button>
+                <button type="submit" class="btn btn-primary">确定</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openModal() { document.getElementById('modal').classList.add('active'); }
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+</script>
+{% endblock %}

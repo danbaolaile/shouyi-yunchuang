@@ -1,0 +1,70 @@
+{% extends "customer/base.html" %}
+
+{% block title %}手艺云创 - 民族手工艺数字化平台{% endblock %}
+
+{% block content %}
+<!-- Hero区域 -->
+<div class="hero">
+    <h1>探索民族纹样之美</h1>
+    <p>上传图片智能识别纹样，AI辅助设计专属民族手工艺品</p>
+    <div class="hero-buttons">
+        <a href="{{ url_for('customer.recognize') }}" class="hero-btn primary">🔍 开始识别纹样</a>
+        <a href="{{ url_for('customer.design') }}" class="hero-btn secondary">🎨 AI智能设计</a>
+    </div>
+</div>
+
+<!-- 核心功能 -->
+<div class="features">
+    <a href="{{ url_for('customer.recognize') }}" class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>纹样智能识别</h3>
+        <p>上传纹样图片，自动匹配数据库中的民族纹样，识别民族来源、文化寓意及相似纹样推荐</p>
+    </a>
+    <a href="{{ url_for('customer.design') }}" class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <h3>AI智能设计</h3>
+        <p>根据您的需求偏好，智能推荐配色方案、纹样元素和设计建议，助力文创产品开发</p>
+    </a>
+    <div class="feature-card">
+        <div class="feature-icon">📚</div>
+        <h3>纹样数据库</h3>
+        <p>收录苗族、藏族、汉族、维吾尔族等多民族传统纹样，涵盖自然、几何、植物、动物等多类别</p>
+    </div>
+</div>
+
+<!-- 数据统计 -->
+<div class="stats">
+    <div class="stat-card">
+        <div class="stat-number">{{ pattern_count }}</div>
+        <div class="stat-label">收录纹样数量</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ gene_count }}</div>
+        <div class="stat-label">文化基因标签</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">10+</div>
+        <div class="stat-label">覆盖民族</div>
+    </div>
+</div>
+
+<!-- 热门纹样 -->
+<h2 class="section-title">🔥 热门纹样推荐</h2>
+<div class="pattern-grid">
+    {% for p in hot_patterns %}
+    <div class="pattern-item">
+        <div class="pattern-thumb">
+            {% if p.image_path %}
+            <img src="{{ url_for('static', filename='uploads/' + p.image_path) }}" style="width: 100%; height: 100%; object-fit: cover;">
+            {% else %}
+            🎨
+            {% endif %}
+        </div>
+        <div class="pattern-info">
+            <div class="pattern-name">{{ p.name }}</div>
+            <div class="pattern-origin">{{ p.origin or '传统纹样' }} · {{ p.category or '其他' }}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

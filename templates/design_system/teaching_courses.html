@@ -1,0 +1,206 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('design.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">工艺管理</div>
+    <a href="{{ url_for('design.craft_processes') }}" class="menu-item"><span class="icon">⚒️</span> 传统工艺适配管理</a>
+    <a href="{{ url_for('design.product_schemes') }}" class="menu-item"><span class="icon">📦</span> 手工艺品方案管理</a>
+    <a href="{{ url_for('design.material_calc') }}" class="menu-item"><span class="icon">🧮</span> 耗材计算</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">市场分析</div>
+    <a href="{{ url_for('design.trend_forecast') }}" class="menu-item"><span class="icon">📈</span> 趋势预测</a>
+    <a href="{{ url_for('design.demand_insight') }}" class="menu-item"><span class="icon">💡</span> 需求洞察</a>
+    <a href="{{ url_for('design.design_trends') }}" class="menu-item"><span class="icon">📊</span> 设计趋势分析管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化传承</div>
+    <a href="{{ url_for('design.inheritors') }}" class="menu-item"><span class="icon">👤</span> 非遗传承人管理</a>
+    <a href="{{ url_for('design.cultural_knowledge') }}" class="menu-item"><span class="icon">📖</span> 民族文化知识管理</a>
+    <a href="{{ url_for('design.teaching_courses') }}" class="menu-item active"><span class="icon">🎓</span> 工艺教学课程管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">智能设计工具</div>
+    <a href="{{ url_for('design.pattern_generator') }}" class="menu-item"><span class="icon">🎨</span> 纹样生成</a>
+    <a href="{{ url_for('design.smart_design') }}" class="menu-item"><span class="icon">🤖</span> 智能生成设计管理</a>
+    <a href="{{ url_for('design.design_efficiency') }}" class="menu-item"><span class="icon">⚡</span> 设计效能</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">订单管理</div>
+    <a href="{{ url_for('design.custom_orders') }}" class="menu-item"><span class="icon">📋</span> 定制订单跟踪管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">设计素材库</div>
+    <a href="{{ url_for('design.pattern_materials') }}" class="menu-item"><span class="icon">🖼️</span> 民族图案素材管理</a>
+    <a href="{{ url_for('design.copyrights') }}" class="menu-item"><span class="icon">©️</span> 数字版权登记管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统设置</div>
+    <a href="{{ url_for('design.user_preferences') }}" class="menu-item"><span class="icon">⚙️</span> 偏好自适应调控</a>
+</div>
+{% endblock %}
+
+{% block page_title %}工艺教学课程管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="search-bar">
+        <input type="text" placeholder="课程名称" value="{{ search }}" id="searchInput">
+        <select>
+            <option value="">全部难度</option>
+            <option value="入门">入门</option>
+            <option value="初级">初级</option>
+            <option value="中级">中级</option>
+            <option value="高级">高级</option>
+        </select>
+        <button class="btn btn-primary" onclick="doSearch()">🔍 搜索</button>
+        <button class="btn btn-secondary" onclick="clearSearch()">🔄 清空</button>
+    </div>
+    
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新增课程</button>
+        <button class="btn btn-secondary">📚 按工艺分类</button>
+        <button class="btn btn-secondary">📊 学习统计</button>
+    </div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>课程编号</th>
+                <th>课程名称</th>
+                <th>授课讲师</th>
+                <th>工艺类型</th>
+                <th>时长</th>
+                <th>难度</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in courses %}
+            <tr>
+                <td>{{ c.course_id }}</td>
+                <td><strong>{{ c.course_name }}</strong></td>
+                <td>{{ c.instructor or '-' }}</td>
+                <td>{{ c.craft_type or '-' }}</td>
+                <td>{{ c.duration or '-' }}</td>
+                <td>
+                    {% if c.difficulty == '高级' %}
+                    <span class="status-tag status-error">{{ c.difficulty }}</span>
+                    {% elif c.difficulty == '中级' %}
+                    <span class="status-tag status-warning">{{ c.difficulty }}</span>
+                    {% else %}
+                    <span class="status-tag status-success">{{ c.difficulty }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if c.status == '已发布' %}
+                    <span class="status-tag status-success">{{ c.status }}</span>
+                    {% else %}
+                    <span class="status-tag status-default">{{ c.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="openEditModal({{ c.id }}, '{{ c.course_id }}', '{{ c.course_name }}', '{{ c.instructor or '' }}', '{{ c.craft_type or '' }}', '{{ c.duration or '' }}', '{{ c.difficulty or '' }}', '{{ c.description or '' }}', '{{ c.status or '已发布' }}')">编辑</button>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: #999; padding: 40px;">暂无课程数据</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('design.teaching_courses', page=pagination.prev_num, search=search) }}">上一页</a>
+        {% endif %}
+        <span>共 {{ pagination.total }} 条</span>
+        {% if pagination.has_next %}
+        <a href="{{ url_for('design.teaching_courses', page=pagination.next_num, search=search) }}">下一页</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- 新增/编辑模态框 -->
+<div class="modal-overlay" id="modal">
+    <div class="modal" style="width: 600px;">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle">新增课程</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="form" method="POST">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>课程编号</label><input type="text" name="course_id" id="f_id" required></div>
+                    <div class="form-group"><label>课程名称 *</label><input type="text" name="course_name" id="f_name" required></div>
+                    <div class="form-group"><label>授课讲师</label><input type="text" name="instructor" id="f_instructor"></div>
+                    <div class="form-group"><label>工艺类型</label><input type="text" name="craft_type" id="f_craft"></div>
+                    <div class="form-group"><label>课程时长</label><input type="text" name="duration" id="f_duration" placeholder="如：8课时 / 2天"></div>
+                    <div class="form-group"><label>难度等级</label>
+                        <select name="difficulty" id="f_difficulty">
+                            <option value="入门">入门</option>
+                            <option value="初级">初级</option>
+                            <option value="中级">中级</option>
+                            <option value="高级">高级</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>发布状态</label>
+                        <select name="status" id="f_status">
+                            <option value="已发布">已发布</option>
+                            <option value="草稿">草稿</option>
+                            <option value="已下架">已下架</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width"><label>课程简介</label><textarea name="description" id="f_desc" rows="3"></textarea></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button type="submit" class="btn btn-primary">确定保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function doSearch() {
+    const search = document.getElementById('searchInput').value;
+    window.location.href = '/design/teaching-courses?search=' + encodeURIComponent(search);
+}
+function clearSearch() {
+    window.location.href = '/design/teaching-courses';
+}
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = '新增课程';
+    document.getElementById('form').action = "{{ url_for('design.add_teaching_course') }}";
+    document.getElementById('form').reset();
+    document.getElementById('modal').classList.add('active');
+}
+function openEditModal(id, cid, name, instructor, craft, duration, difficulty, desc, status) {
+    document.getElementById('modalTitle').textContent = '编辑课程';
+    document.getElementById('form').action = '/design/teaching-courses/' + id + '/edit';
+    document.getElementById('f_id').value = cid;
+    document.getElementById('f_name').value = name;
+    document.getElementById('f_instructor').value = instructor;
+    document.getElementById('f_craft').value = craft;
+    document.getElementById('f_duration').value = duration;
+    document.getElementById('f_difficulty').value = difficulty || '初级';
+    document.getElementById('f_desc').value = desc;
+    document.getElementById('f_status').value = status || '已发布';
+    document.getElementById('modal').classList.add('active');
+}
+function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ system_name }}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        :root {
+            --theme-color: {{ theme_color }};
+            --theme-color-light: {{ theme_color_light }};
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="layout">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                {{ system_name }}
+            </div>
+            <nav class="sidebar-menu">
+                {% block sidebar %}{% endblock %}
+            </nav>
+        </aside>
+        
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 顶部导航 -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <span class="topbar-title">{% block page_title %}首页{% endblock %}</span>
+                </div>
+                <div class="topbar-right">
+                    <div class="user-info">
+                        <span>👤 管理员</span>
+                    </div>
+                    <a href="{{ url_for('auth.logout') }}" class="logout-btn">退出登录</a>
+                </div>
+            </header>
+            
+            <!-- 内容区 -->
+            <main class="content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    
+    {% block modals %}{% endblock %}
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

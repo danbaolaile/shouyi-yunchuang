@@ -1,0 +1,224 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('design.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">工艺管理</div>
+    <a href="{{ url_for('design.craft_processes') }}" class="menu-item"><span class="icon">⚒️</span> 传统工艺适配管理</a>
+    <a href="{{ url_for('design.product_schemes') }}" class="menu-item"><span class="icon">📦</span> 手工艺品方案管理</a>
+    <a href="{{ url_for('design.material_calc') }}" class="menu-item"><span class="icon">🧮</span> 耗材计算</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">市场分析</div>
+    <a href="{{ url_for('design.trend_forecast') }}" class="menu-item"><span class="icon">📈</span> 趋势预测</a>
+    <a href="{{ url_for('design.demand_insight') }}" class="menu-item"><span class="icon">💡</span> 需求洞察</a>
+    <a href="{{ url_for('design.design_trends') }}" class="menu-item"><span class="icon">📊</span> 设计趋势分析管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化传承</div>
+    <a href="{{ url_for('design.inheritors') }}" class="menu-item"><span class="icon">👤</span> 非遗传承人管理</a>
+    <a href="{{ url_for('design.cultural_knowledge') }}" class="menu-item"><span class="icon">📖</span> 民族文化知识管理</a>
+    <a href="{{ url_for('design.teaching_courses') }}" class="menu-item"><span class="icon">🎓</span> 工艺教学课程管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">智能设计工具</div>
+    <a href="{{ url_for('design.pattern_generator') }}" class="menu-item"><span class="icon">🎨</span> 纹样生成</a>
+    <a href="{{ url_for('design.smart_design') }}" class="menu-item"><span class="icon">🤖</span> 智能生成设计管理</a>
+    <a href="{{ url_for('design.design_efficiency') }}" class="menu-item"><span class="icon">⚡</span> 设计效能</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">订单管理</div>
+    <a href="{{ url_for('design.custom_orders') }}" class="menu-item"><span class="icon">📋</span> 定制订单跟踪管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">设计素材库</div>
+    <a href="{{ url_for('design.pattern_materials') }}" class="menu-item active"><span class="icon">🖼️</span> 民族图案素材管理</a>
+    <a href="{{ url_for('design.copyrights') }}" class="menu-item"><span class="icon">©️</span> 数字版权登记管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统设置</div>
+    <a href="{{ url_for('design.user_preferences') }}" class="menu-item"><span class="icon">⚙️</span> 偏好自适应调控</a>
+</div>
+{% endblock %}
+
+{% block page_title %}民族图案素材管理 / AI标签化{% endblock %}
+
+{% block content %}
+<div class="card">
+    <!-- 搜索和标签筛选 -->
+    <div class="search-bar">
+        <input type="text" placeholder="搜索素材名称/标签" value="{{ search }}" id="searchInput">
+        <select id="tagSelect">
+            <option value="">全部标签</option>
+            {% for tag in all_tags %}
+            <option value="{{ tag }}" {% if tag == current_tag %}selected{% endif %}>{{ tag }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-primary" onclick="doSearch()">🔍 标签检索</button>
+        <button class="btn btn-secondary" onclick="clearSearch()">🔄 清空</button>
+    </div>
+    
+    <!-- 工具栏 -->
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openUploadModal()">📤 上传素材</button>
+        <button class="btn btn-success" onclick="location.href='{{ url_for('design.pattern_materials') }}?tag=传统纹样'">🏷️ 传统纹样</button>
+        <button class="btn btn-secondary">📊 标签统计</button>
+        {% if current_tag %}
+        <span style="margin-left: auto; color: #666;">当前筛选标签：<strong>{{ current_tag }}</strong></span>
+        {% endif %}
+    </div>
+    
+    <!-- 素材列表 -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>素材编号</th>
+                <th>素材名称</th>
+                <th>纹样类型</th>
+                <th>来源民族</th>
+                <th>AI标签</th>
+                <th>版权状态</th>
+                <th>上传人</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in materials %}
+            <tr>
+                <td>{{ m.material_id }}</td>
+                <td>{{ m.material_name }}</td>
+                <td>{{ m.pattern_type or '-' }}</td>
+                <td>{{ m.ethnic_origin or '-' }}</td>
+                <td style="max-width: 250px;">
+                    {% if m.tags %}
+                        {% for tag in m.tags.split(',') %}
+                        <a href="{{ url_for('design.pattern_materials') }}?tag={{ tag }}" style="display: inline-block; padding: 2px 8px; margin: 2px; background: #e8f5e9; color: #2e7d32; border-radius: 12px; font-size: 12px; text-decoration: none;">{{ tag }}</a>
+                        {% endfor %}
+                    {% else %}
+                    <span style="color: #999;">未标签化</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if m.copyright_status == '已授权' %}
+                    <span class="status-tag status-success">{{ m.copyright_status }}</span>
+                    {% elif m.copyright_status == '待审核' %}
+                    <span class="status-tag status-warning">{{ m.copyright_status }}</span>
+                    {% else %}
+                    <span class="status-tag status-default">{{ m.copyright_status }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ m.uploader or '-' }}</td>
+                <td>
+                    {% if not m.auto_tagged %}
+                    <a href="{{ url_for('design.retag_material', id=m.id) }}" class="btn btn-sm btn-success">AI打标签</a>
+                    {% else %}
+                    <a href="{{ url_for('design.retag_material', id=m.id) }}" class="btn btn-sm btn-secondary">重新生成</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: #999; padding: 40px;">暂无素材，请上传或导入</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('design.pattern_materials', page=pagination.prev_num, tag=current_tag, search=search) }}">上一页</a>
+        {% endif %}
+        <span>共 {{ pagination.total }} 条</span>
+        {% if pagination.has_next %}
+        <a href="{{ url_for('design.pattern_materials', page=pagination.next_num, tag=current_tag, search=search) }}">下一页</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- 上传素材模态框 -->
+<div class="modal-overlay" id="uploadModal">
+    <div class="modal" style="width: 520px;">
+        <div class="modal-header">
+            <span class="modal-title">上传素材 · AI自动标签化</span>
+            <button class="modal-close" onclick="closeUploadModal()">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('design.upload_material') }}" enctype="multipart/form-data">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>选择素材文件 *</label>
+                    <input type="file" name="file" accept="image/*,.svg" required style="width: 100%; padding: 12px; border: 2px dashed #ddd; border-radius: 8px;">
+                    <p style="font-size: 12px; color: #999; margin-top: 6px;">支持 PNG、JPG、GIF、SVG、WebP 等图片格式</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>素材编号</label>
+                        <input type="text" name="material_id" placeholder="留空自动生成">
+                    </div>
+                    <div class="form-group">
+                        <label>素材名称</label>
+                        <input type="text" name="material_name" placeholder="留空使用文件名">
+                    </div>
+                    <div class="form-group">
+                        <label>纹样类型</label>
+                        <select name="pattern_type">
+                            <option value="">未知（AI识别）</option>
+                            <option value="植物纹样">植物纹样</option>
+                            <option value="动物纹样">动物纹样</option>
+                            <option value="几何纹样">几何纹样</option>
+                            <option value="自然纹样">自然纹样</option>
+                            <option value="人物纹样">人物纹样</option>
+                            <option value="符号纹样">符号纹样</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>来源民族</label>
+                        <select name="ethnic_origin">
+                            <option value="">未知（AI识别）</option>
+                            <option value="汉族">汉族</option>
+                            <option value="苗族">苗族</option>
+                            <option value="藏族">藏族</option>
+                            <option value="维吾尔族">维吾尔族</option>
+                            <option value="彝族">彝族</option>
+                            <option value="壮族">壮族</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="background: #e8f5e9; padding: 12px; border-radius: 8px; margin-top: 12px;">
+                    <p style="font-size: 13px; color: #2e7d32; margin: 0;">🤖 <strong>AI自动标签化</strong>：上传后系统将基于文件名、类型、民族自动生成智能标签，支持标签检索</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeUploadModal()">取消</button>
+                <button type="submit" class="btn btn-primary">开始上传</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function doSearch() {
+    const search = document.getElementById('searchInput').value;
+    const tag = document.getElementById('tagSelect').value;
+    window.location.href = '/design/pattern-materials?search=' + encodeURIComponent(search) + '&tag=' + encodeURIComponent(tag);
+}
+
+function clearSearch() {
+    window.location.href = '/design/pattern-materials';
+}
+
+function openUploadModal() {
+    document.getElementById('uploadModal').classList.add('active');
+}
+
+function closeUploadModal() {
+    document.getElementById('uploadModal').classList.remove('active');
+}
+</script>
+{% endblock %}

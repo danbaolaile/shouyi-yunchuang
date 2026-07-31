@@ -1,0 +1,179 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('database.index') }}" class="menu-item {% if request.endpoint == 'database.index' %}active{% endif %}">
+        <span class="icon">🏠</span> 首页
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">传承与发展</div>
+    <a href="{{ url_for('database.heritage_graph') }}" class="menu-item">
+        <span class="icon">🕸️</span> 技法传承图谱
+    </a>
+    <a href="{{ url_for('database.artisans') }}" class="menu-item {% if request.endpoint == 'database.artisans' %}active{% endif %}">
+        <span class="icon">👤</span> 传承人档案管理
+    </a>
+    <a href="{{ url_for('database.trainings') }}" class="menu-item {% if request.endpoint == 'database.trainings' %}active{% endif %}">
+        <span class="icon">📚</span> 技艺培训管理
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">作品与资源管理</div>
+    <a href="{{ url_for('database.artworks') }}" class="menu-item {% if request.endpoint == 'database.artworks' %}active{% endif %}">
+        <span class="icon">🎨</span> 手工艺作品管理
+    </a>
+    <a href="{{ url_for('database.fusion') }}" class="menu-item">
+        <span class="icon">🔀</span> 元素融合设计
+    </a>
+    <a href="{{ url_for('database.patterns') }}" class="menu-item {% if request.endpoint == 'database.patterns' %}active{% endif %}">
+        <span class="icon">🔍</span> 纹样智能检索
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">数据分析</div>
+    <a href="{{ url_for('database.category_analysis') }}" class="menu-item">
+        <span class="icon">📊</span> 工艺品类分析
+    </a>
+    <a href="{{ url_for('database.category_stats') }}" class="menu-item">
+        <span class="icon">📈</span> 工艺品类统计管理
+    </a>
+    <a href="{{ url_for('database.heritage_analysis') }}" class="menu-item">
+        <span class="icon">📉</span> 非遗传承分析
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">系统管理</div>
+    <a href="{{ url_for('database.backup') }}" class="menu-item">
+        <span class="icon">💾</span> 数据备份管理
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">项目管理</div>
+    <a href="{{ url_for('database.projects') }}" class="menu-item">
+        <span class="icon">📋</span> 传承项目申报管理
+    </a>
+    <a href="{{ url_for('database.exhibitions') }}" class="menu-item">
+        <span class="icon">🖼️</span> 展览活动管理
+    </a>
+    <a href="{{ url_for('database.international') }}" class="menu-item">
+        <span class="icon">🌍</span> 国际合作管理
+    </a>
+    <a href="{{ url_for('database.institutions') }}" class="menu-item">
+        <span class="icon">🏛️</span> 文化机构管理
+    </a>
+</div>
+{% endblock %}
+
+{% block page_title %}首页{% endblock %}
+
+{% block content %}
+<!-- 横幅 -->
+<div class="hero-banner">
+    <div class="hero-content">
+        <h1>手艺云创民族手工艺数据库系统</h1>
+        <p>数字化整合手工艺生态链，助力非遗传承与创新发展</p>
+        <div class="hero-stats">
+            <div class="hero-stat-item">
+                <div class="number">{{ stats.artwork_count }}+</div>
+                <div class="label">收录手工艺品</div>
+            </div>
+            <div class="hero-stat-item">
+                <div class="number">{{ stats.category_count }}</div>
+                <div class="label">传统工艺类别</div>
+            </div>
+            <div class="hero-stat-item">
+                <div class="number">{{ stats.artisan_count }}</div>
+                <div class="label">注册匠人</div>
+            </div>
+            <div class="hero-stat-item">
+                <div class="number">12,345</div>
+                <div class="label">月访问量</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 快捷入口 -->
+<div class="quick-entries">
+    <a href="{{ url_for('database.artisans') }}" class="quick-entry">
+        <div class="icon">👤</div>
+        <div class="title">传承人档案</div>
+    </a>
+    <a href="{{ url_for('database.artworks') }}" class="quick-entry">
+        <div class="icon">🎨</div>
+        <div class="title">作品数据库</div>
+    </a>
+    <a href="{{ url_for('database.patterns') }}" class="quick-entry">
+        <div class="icon">🔍</div>
+        <div class="title">纹样智能检索</div>
+    </a>
+    <a href="{{ url_for('database.category_analysis') }}" class="quick-entry">
+        <div class="icon">📊</div>
+        <div class="title">数据分析</div>
+    </a>
+</div>
+
+<!-- 最新动态 -->
+<div class="two-column">
+    <div class="card">
+        <div class="card-title">最新传承人</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>姓名</th>
+                    <th>民族</th>
+                    <th>技艺类别</th>
+                    <th>传承级别</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for artisan in recent_artisans %}
+                <tr>
+                    <td>{{ artisan.name }}</td>
+                    <td>{{ artisan.ethnic_group }}</td>
+                    <td>{{ artisan.skill_type }}</td>
+                    <td><span class="status-tag status-info">{{ artisan.heritage_level }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="card">
+        <div class="card-title">近期培训</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>培训主题</th>
+                    <th>主讲人</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for training in recent_trainings %}
+                <tr>
+                    <td>{{ training.title }}</td>
+                    <td>{{ training.instructor }}</td>
+                    <td>
+                        {% if training.status == '已完成' %}
+                        <span class="status-tag status-success">{{ training.status }}</span>
+                        {% elif training.status == '进行中' %}
+                        <span class="status-tag status-warning">{{ training.status }}</span>
+                        {% else %}
+                        <span class="status-tag status-default">{{ training.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

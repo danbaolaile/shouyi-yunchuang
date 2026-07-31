@@ -1,0 +1,379 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('database.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">传承与发展</div>
+    <a href="{{ url_for('database.heritage_graph') }}" class="menu-item"><span class="icon">🕸️</span> 技法传承图谱</a>
+    <a href="{{ url_for('database.artisans') }}" class="menu-item"><span class="icon">👤</span> 传承人档案管理</a>
+    <a href="{{ url_for('database.trainings') }}" class="menu-item"><span class="icon">📚</span> 技艺培训管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">作品与资源管理</div>
+    <a href="{{ url_for('database.artworks') }}" class="menu-item"><span class="icon">🎨</span> 手工艺作品管理</a>
+    <a href="{{ url_for('database.fusion') }}" class="menu-item"><span class="icon">🔀</span> 元素融合设计</a>
+    <a href="{{ url_for('database.patterns') }}" class="menu-item active"><span class="icon">🔍</span> 纹样智能检索</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">数据分析</div>
+    <a href="{{ url_for('database.category_analysis') }}" class="menu-item"><span class="icon">📊</span> 工艺品类分析</a>
+    <a href="{{ url_for('database.category_stats') }}" class="menu-item"><span class="icon">📈</span> 工艺品类统计管理</a>
+    <a href="{{ url_for('database.heritage_analysis') }}" class="menu-item"><span class="icon">📉</span> 非遗传承分析</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统管理</div>
+    <a href="{{ url_for('database.backup') }}" class="menu-item"><span class="icon">💾</span> 数据备份管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">项目管理</div>
+    <a href="{{ url_for('database.projects') }}" class="menu-item"><span class="icon">📋</span> 传承项目申报管理</a>
+    <a href="{{ url_for('database.exhibitions') }}" class="menu-item"><span class="icon">🖼️</span> 展览活动管理</a>
+    <a href="{{ url_for('database.international') }}" class="menu-item"><span class="icon">🌍</span> 国际合作管理</a>
+    <a href="{{ url_for('database.institutions') }}" class="menu-item"><span class="icon">🏛️</span> 文化机构管理</a>
+</div>
+{% endblock %}
+
+{% block page_title %}纹样智能检索 / 纹样数据库{% endblock %}
+
+{% block content %}
+<div class="card">
+    <!-- 搜索栏 -->
+    <div class="search-bar">
+        <input type="text" placeholder="纹样名称/编号" value="{{ search }}" id="searchInput">
+        <select id="categorySelect">
+            <option value="">全部类别</option>
+            {% for cat in categories %}
+            <option value="{{ cat }}" {% if cat == current_category %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+        <select>
+            <option value="">全部民族</option>
+        </select>
+        <button class="btn btn-primary" onclick="doSearch()">🔍 搜索</button>
+        <button class="btn btn-secondary" onclick="clearSearch()">🔄 清空</button>
+    </div>
+    
+    <!-- 工具栏 -->
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新增纹样</button>
+        <button class="btn btn-success" onclick="openImportModal()">📥 批量导入</button>
+        <button class="btn btn-info" onclick="openBatchUploadModal()">🖼️ 批量上传图片</button>
+        <a href="{{ url_for('database.download_pattern_template') }}" class="btn btn-secondary">📋 下载导入模板</a>
+        <a href="{{ url_for('database.export_patterns') }}" class="btn btn-secondary">📤 导出数据</a>
+        <button class="btn btn-secondary">📊 按类别统计</button>
+    </div>
+    
+    <!-- 数据表格 -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th><input type="checkbox"></th>
+                <th>缩略图</th>
+                <th>纹样编号</th>
+                <th>纹样名称</th>
+                <th>来源</th>
+                <th>纹样类别</th>
+                <th>文化寓意</th>
+                <th>配色方案</th>
+                <th>录入时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pattern in patterns %}
+            <tr>
+                <td><input type="checkbox"></td>
+                <td>
+                    {% if pattern.image_path %}
+                    <img src="{{ url_for('static', filename='uploads/' + pattern.image_path) }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; cursor: pointer;" onclick="showImage('{{ url_for('static', filename='uploads/' + pattern.image_path) }}')">
+                    {% else %}
+                    <div style="width: 50px; height: 50px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #ccc;">🎨</div>
+                    {% endif %}
+                </td>
+                <td>{{ pattern.pattern_id }}</td>
+                <td>{{ pattern.name }}</td>
+                <td>{{ pattern.origin }}</td>
+                <td><span class="status-tag status-info">{{ pattern.category }}</span></td>
+                <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ pattern.cultural_meaning }}</td>
+                <td>{{ pattern.color_scheme }}</td>
+                <td>{{ pattern.created_at.strftime('%Y-%m-%d') if pattern.created_at else '-' }}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="openEditModal({{ pattern.id }}, '{{ pattern.pattern_id }}', '{{ pattern.name }}', '{{ pattern.origin }}', '{{ pattern.category }}', '{{ pattern.cultural_meaning }}', '{{ pattern.color_scheme }}', '{{ pattern.description }}', '{{ pattern.image_path or '' }}')">编辑</button>
+                    <a href="{{ url_for('database.delete_pattern', id=pattern.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('确定删除该纹样？')">删除</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" style="text-align: center; color: #999; padding: 40px;">暂无纹样数据，请新增或批量导入</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- 分页 -->
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('database.patterns', page=pagination.prev_num, search=search, category=current_category) }}">上一页</a>
+        {% endif %}
+        {% for page_num in pagination.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == pagination.page %}
+                <span class="current">{{ page_num }}</span>
+                {% else %}
+                <a href="{{ url_for('database.patterns', page=page_num, search=search, category=current_category) }}">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+            <span>...</span>
+            {% endif %}
+        {% endfor %}
+        {% if pagination.has_next %}
+        <a href="{{ url_for('database.patterns', page=pagination.next_num, search=search, category=current_category) }}">下一页</a>
+        {% endif %}
+        <span>共 {{ pagination.total }} 条</span>
+    </div>
+    {% endif %}
+</div>
+
+<!-- 新增/编辑纹样模态框 -->
+<div class="modal-overlay" id="patternModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle">新增纹样</span>
+            <button class="modal-close" onclick="closePatternModal()">&times;</button>
+        </div>
+        <form id="patternForm" method="POST" enctype="multipart/form-data">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>纹样编号 *</label>
+                        <input type="text" name="pattern_id" id="patternId" required placeholder="如：PAT001">
+                    </div>
+                    <div class="form-group">
+                        <label>纹样名称 *</label>
+                        <input type="text" name="name" id="patternName" required placeholder="如：云纹">
+                    </div>
+                    <div class="form-group">
+                        <label>来源民族/地区</label>
+                        <input type="text" name="origin" id="patternOrigin" placeholder="如：苗族 / 云南">
+                    </div>
+                    <div class="form-group">
+                        <label>纹样类别</label>
+                        <select name="category" id="patternCategory">
+                            <option value="自然纹样">自然纹样</option>
+                            <option value="植物纹样">植物纹样</option>
+                            <option value="动物纹样">动物纹样</option>
+                            <option value="几何纹样">几何纹样</option>
+                            <option value="人物纹样">人物纹样</option>
+                            <option value="符号纹样">符号纹样</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>纹样图片</label>
+                        <input type="file" name="image" id="patternImage" accept="image/*" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%;">
+                        <p style="font-size: 12px; color: #999; margin-top: 4px;">支持 PNG、JPG、GIF、SVG、WebP 格式</p>
+                        <div id="imagePreview" style="margin-top: 8px; display: none;">
+                            <img id="previewImg" style="max-width: 150px; max-height: 150px; border-radius: 4px; border: 1px solid #ddd;">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>文化寓意</label>
+                        <input type="text" name="cultural_meaning" id="patternMeaning" placeholder="简述该纹样的文化象征意义">
+                    </div>
+                    <div class="form-group">
+                        <label>配色方案</label>
+                        <input type="text" name="color_scheme" id="patternColor" placeholder="如：红蓝白 / 青金相间">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>详细描述</label>
+                        <textarea name="description" id="patternDesc" rows="3" placeholder="纹样特征、应用场景、历史渊源等"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closePatternModal()">取消</button>
+                <button type="submit" class="btn btn-primary">确定保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 批量导入模态框 -->
+<div class="modal-overlay" id="importModal">
+    <div class="modal" style="width: 500px;">
+        <div class="modal-header">
+            <span class="modal-title">批量导入纹样</span>
+            <button class="modal-close" onclick="closeImportModal()">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('database.import_patterns') }}" enctype="multipart/form-data">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>选择CSV文件</label>
+                    <input type="file" name="file" accept=".csv" required style="width: 100%; padding: 10px; border: 1px dashed #ddd; border-radius: 8px;">
+                </div>
+                <div style="background: #f5f7fa; padding: 16px; border-radius: 8px; margin-top: 16px;">
+                    <p style="font-size: 13px; color: #666; margin-bottom: 8px;">📌 导入说明：</p>
+                    <ul style="font-size: 12px; color: #999; padding-left: 20px; line-height: 1.8;">
+                        <li>仅支持 CSV 格式文件</li>
+                        <li>第一行为表头，从第二行开始为数据</li>
+                        <li>必填字段：纹样编号、纹样名称</li>
+                        <li>纹样编号重复的数据将自动跳过</li>
+                        <li>建议先下载导入模板，按格式填写后再上传</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="{{ url_for('database.download_pattern_template') }}" class="btn btn-secondary">下载模板</a>
+                <button type="button" class="btn btn-secondary" onclick="closeImportModal()">取消</button>
+                <button type="submit" class="btn btn-primary">开始导入</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 批量上传图片模态框 -->
+<div class="modal-overlay" id="batchUploadModal">
+    <div class="modal" style="width: 500px;">
+        <div class="modal-header">
+            <span class="modal-title">批量上传纹样图片</span>
+            <button class="modal-close" onclick="closeBatchUploadModal()">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('database.batch_upload_images') }}" enctype="multipart/form-data">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>选择图片文件（可多选）</label>
+                    <input type="file" name="images" multiple accept="image/*" required style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; width: 100%;">
+                </div>
+                <div style="background: #f5f9ff; padding: 15px; border-radius: 6px; margin-top: 15px;">
+                    <strong style="color: var(--theme-color);">📌 命名规则（支持三种方式）</strong>
+                    <ul style="margin: 10px 0 0 20px; color: #666; font-size: 13px; line-height: 1.8;">
+                        <li><strong>方式一（推荐）：</strong>文件名 = 纹样编号，如 <code>PAT001.jpg</code></li>
+                        <li><strong>方式二：</strong>文件名 = 纹样名称，如 <code>云纹.png</code></li>
+                        <li><strong>方式三：</strong>文件名包含纹样名称，如 <code>苗族_云纹_01.jpg</code></li>
+                        <li>系统自动按「编号→名称→模糊匹配」顺序匹配</li>
+                        <li>支持格式：PNG、JPG、GIF、SVG、WebP、BMP</li>
+                    </ul>
+                </div>
+                <div id="fileList" style="margin-top: 15px; max-height: 150px; overflow-y: auto; display: none;">
+                    <p style="font-weight: bold; margin-bottom: 8px;">已选择文件：</p>
+                    <div id="fileNames" style="font-size: 13px; color: #666;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeBatchUploadModal()">取消</button>
+                <button type="submit" class="btn btn-primary">开始上传</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function doSearch() {
+    const search = document.getElementById('searchInput').value;
+    const category = document.getElementById('categorySelect').value;
+    window.location.href = '/database/patterns?search=' + encodeURIComponent(search) + '&category=' + encodeURIComponent(category);
+}
+
+function clearSearch() {
+    window.location.href = '/database/patterns';
+}
+
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = '新增纹样';
+    document.getElementById('patternForm').action = "{{ url_for('database.add_pattern') }}";
+    document.getElementById('patternForm').reset();
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('patternModal').classList.add('active');
+}
+
+function openEditModal(id, patternId, name, origin, category, meaning, color, desc, imagePath) {
+    document.getElementById('modalTitle').textContent = '编辑纹样';
+    document.getElementById('patternForm').action = '/database/patterns/' + id + '/edit';
+    document.getElementById('patternId').value = patternId;
+    document.getElementById('patternName').value = name;
+    document.getElementById('patternOrigin').value = origin;
+    document.getElementById('patternCategory').value = category || '其他';
+    document.getElementById('patternMeaning').value = meaning;
+    document.getElementById('patternColor').value = color;
+    document.getElementById('patternDesc').value = desc;
+    // 编辑时显示已有图片预览
+    if (imagePath) {
+        document.getElementById('previewImg').src = '/static/uploads/' + imagePath;
+        document.getElementById('imagePreview').style.display = 'block';
+    } else {
+        document.getElementById('imagePreview').style.display = 'none';
+    }
+    document.getElementById('patternModal').classList.add('active');
+}
+
+// 图片上传预览
+document.getElementById('patternImage').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('imagePreview').style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+// 查看大图
+function showImage(src) {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:9999;cursor:pointer;';
+    modal.innerHTML = '<img src="' + src + '" style="max-width:90%;max-height:90%;border-radius:8px;">';
+    modal.onclick = function() { document.body.removeChild(modal); };
+    document.body.appendChild(modal);
+}
+
+function closePatternModal() {
+    document.getElementById('patternModal').classList.remove('active');
+}
+
+function openImportModal() {
+    document.getElementById('importModal').classList.add('active');
+}
+
+function closeImportModal() {
+    document.getElementById('importModal').classList.remove('active');
+}
+
+function openBatchUploadModal() {
+    document.getElementById('batchUploadModal').classList.add('active');
+}
+
+function closeBatchUploadModal() {
+    document.getElementById('batchUploadModal').classList.remove('active');
+}
+
+// 显示已选择的文件列表
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.querySelector('#batchUploadModal input[type="file"]');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            const fileListDiv = document.getElementById('fileList');
+            const fileNamesDiv = document.getElementById('fileNames');
+            if (files.length > 0) {
+                fileListDiv.style.display = 'block';
+                let html = '';
+                for (let i = 0; i < files.length; i++) {
+                    html += `<div>• ${files[i].name} (${(files[i].size / 1024).toFixed(1)} KB)</div>`;
+                }
+                fileNamesDiv.innerHTML = html;
+            } else {
+                fileListDiv.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('gene.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文创设计辅助</div>
+    <a href="{{ url_for('gene.fusion_design') }}" class="menu-item"><span class="icon">🔀</span> 智能融合设计</a>
+    <a href="{{ url_for('gene.pattern_analysis') }}" class="menu-item"><span class="icon">🔍</span> 纹样智能解析</a>
+    <a href="{{ url_for('gene.designs') }}" class="menu-item"><span class="icon">🎨</span> 文创设计辅助管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化基因分析</div>
+    <a href="{{ url_for('gene.gene_stats') }}" class="menu-item"><span class="icon">📊</span> 基因识别统计</a>
+    <a href="{{ url_for('gene.gene_features') }}" class="menu-item"><span class="icon">🧬</span> 文化基因特征提取管理</a>
+    <a href="{{ url_for('gene.heritage_trace') }}" class="menu-item"><span class="icon">🔗</span> 传承关系溯源</a>
+    <a href="{{ url_for('gene.gene_atlas') }}" class="menu-item"><span class="icon">🗺️</span> 文化基因图谱构建管理</a>
+    <a href="{{ url_for('gene.gene_classifications') }}" class="menu-item"><span class="icon">📂</span> 文化基因分类管理</a>
+    <a href="{{ url_for('gene.gene_search') }}" class="menu-item"><span class="icon">🔎</span> 文化基因检索管理</a>
+    <a href="{{ url_for('gene.gene_reports') }}" class="menu-item"><span class="icon">📑</span> 文化基因分析报告管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化资源采集</div>
+    <a href="{{ url_for('gene.collections') }}" class="menu-item active"><span class="icon">📦</span> 手工艺品采集管理</a>
+    <a href="{{ url_for('gene.interviews') }}" class="menu-item"><span class="icon">🎙️</span> 非遗传承人访谈管理</a>
+    <a href="{{ url_for('gene.teaching') }}" class="menu-item"><span class="icon">📚</span> 文化传承教学管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统管理</div>
+    <a href="{{ url_for('gene.system_monitor') }}" class="menu-item"><span class="icon">🖥️</span> 系统效能监控</a>
+    <a href="{{ url_for('gene.gene_review') }}" class="menu-item"><span class="icon">✅</span> 基因审核流程管理</a>
+</div>
+{% endblock %}
+
+{% block page_title %}手工艺品采集管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="search-bar">
+        <input type="text" placeholder="采集物品名称" value="{{ search }}" id="searchInput">
+        <select>
+            <option value="">全部分类</option>
+            <option value="织染类">织染类</option>
+            <option value="陶瓷类">陶瓷类</option>
+            <option value="编织类">编织类</option>
+            <option value="雕刻类">雕刻类</option>
+        </select>
+        <button class="btn btn-primary" onclick="doSearch()">🔍 搜索</button>
+        <button class="btn btn-secondary" onclick="clearSearch()">🔄 清空</button>
+    </div>
+    
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新增采集记录</button>
+        <button class="btn btn-success">📷 批量导入</button>
+        <button class="btn btn-secondary">📊 采集统计</button>
+    </div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>采集编号</th>
+                <th>物品名称</th>
+                <th>采集人</th>
+                <th>采集日期</th>
+                <th>产地来源</th>
+                <th>品类</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in collections %}
+            <tr>
+                <td>{{ c.collection_id }}</td>
+                <td><strong>{{ c.item_name }}</strong></td>
+                <td>{{ c.collector or '-' }}</td>
+                <td>{{ c.collection_date or '-' }}</td>
+                <td>{{ c.origin or '-' }}</td>
+                <td>{{ c.category or '-' }}</td>
+                <td>
+                    {% if c.status == '已入库' %}
+                    <span class="status-tag status-success">{{ c.status }}</span>
+                    {% elif c.status == '采集中' %}
+                    <span class="status-tag status-warning">{{ c.status }}</span>
+                    {% else %}
+                    <span class="status-tag status-default">{{ c.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-primary">详情</button>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: #999; padding: 40px;">暂无采集数据</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('gene.collections', page=pagination.prev_num, search=search) }}">上一页</a>
+        {% endif %}
+        <span>共 {{ pagination.total }} 条</span>
+        {% if pagination.has_next %}
+        <a href="{{ url_for('gene.collections', page=pagination.next_num, search=search) }}">下一页</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- 新增模态框 -->
+<div class="modal-overlay" id="modal">
+    <div class="modal" style="width: 600px;">
+        <div class="modal-header">
+            <span class="modal-title">新增采集记录</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('gene.add_collection') }}">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>采集编号</label><input type="text" name="collection_id" required></div>
+                    <div class="form-group"><label>物品名称 *</label><input type="text" name="item_name" required></div>
+                    <div class="form-group"><label>采集人</label><input type="text" name="collector"></div>
+                    <div class="form-group"><label>采集日期</label><input type="date" name="collection_date"></div>
+                    <div class="form-group"><label>产地来源</label><input type="text" name="origin"></div>
+                    <div class="form-group"><label>品类</label><input type="text" name="category"></div>
+                    <div class="form-group"><label>状态</label>
+                        <select name="status">
+                            <option value="采集中">采集中</option>
+                            <option value="已入库">已入库</option>
+                            <option value="已归档">已归档</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width"><label>详细描述</label><textarea name="description" rows="3"></textarea></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button type="submit" class="btn btn-primary">确定保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function doSearch() {
+    const search = document.getElementById('searchInput').value;
+    window.location.href = '/gene/collections?search=' + encodeURIComponent(search);
+}
+function clearSearch() {
+    window.location.href = '/gene/collections';
+}
+function openAddModal() {
+    document.getElementById('modal').classList.add('active');
+}
+function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+}
+</script>
+{% endblock %}

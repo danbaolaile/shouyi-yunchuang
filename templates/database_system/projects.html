@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('database.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">传承与发展</div>
+    <a href="{{ url_for('database.heritage_graph') }}" class="menu-item"><span class="icon">🕸️</span> 技法传承图谱</a>
+    <a href="{{ url_for('database.artisans') }}" class="menu-item"><span class="icon">👤</span> 传承人档案管理</a>
+    <a href="{{ url_for('database.trainings') }}" class="menu-item"><span class="icon">📚</span> 技艺培训管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">作品与资源管理</div>
+    <a href="{{ url_for('database.artworks') }}" class="menu-item"><span class="icon">🎨</span> 手工艺作品管理</a>
+    <a href="{{ url_for('database.fusion') }}" class="menu-item"><span class="icon">🔀</span> 元素融合设计</a>
+    <a href="{{ url_for('database.patterns') }}" class="menu-item"><span class="icon">🔍</span> 纹样智能检索</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">数据分析</div>
+    <a href="{{ url_for('database.category_analysis') }}" class="menu-item"><span class="icon">📊</span> 工艺品类分析</a>
+    <a href="{{ url_for('database.category_stats') }}" class="menu-item"><span class="icon">📈</span> 工艺品类统计管理</a>
+    <a href="{{ url_for('database.heritage_analysis') }}" class="menu-item"><span class="icon">📉</span> 非遗传承分析</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统管理</div>
+    <a href="{{ url_for('database.backup') }}" class="menu-item"><span class="icon">💾</span> 数据备份管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">项目管理</div>
+    <a href="{{ url_for('database.projects') }}" class="menu-item active"><span class="icon">📋</span> 传承项目申报管理</a>
+    <a href="{{ url_for('database.exhibitions') }}" class="menu-item"><span class="icon">🖼️</span> 展览活动管理</a>
+    <a href="{{ url_for('database.international') }}" class="menu-item"><span class="icon">🌍</span> 国际合作管理</a>
+    <a href="{{ url_for('database.institutions') }}" class="menu-item"><span class="icon">🏛️</span> 文化机构管理</a>
+</div>
+{% endblock %}
+
+{% block page_title %}传承项目申报管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openModal()">+ 新增申报</button>
+        <button class="btn btn-secondary">📊 项目统计</button>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>项目编号</th>
+                <th>项目名称</th>
+                <th>申报单位</th>
+                <th>项目类型</th>
+                <th>申报日期</th>
+                <th>审核状态</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+            <tr>
+                <td>{{ project.project_id }}</td>
+                <td>{{ project.project_name }}</td>
+                <td>{{ project.applicant }}</td>
+                <td>{{ project.project_type }}</td>
+                <td>{{ project.apply_date }}</td>
+                <td>
+                    {% if project.status == '已通过' %}
+                    <span class="status-tag status-success">{{ project.status }}</span>
+                    {% elif project.status == '审核中' %}
+                    <span class="status-tag status-warning">{{ project.status }}</span>
+                    {% else %}
+                    <span class="status-tag status-error">{{ project.status }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">新增传承项目申报</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('database.add_project') }}">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>项目编号</label><input type="text" name="project_id" required></div>
+                    <div class="form-group"><label>项目名称</label><input type="text" name="project_name" required></div>
+                    <div class="form-group"><label>申报单位</label><input type="text" name="applicant"></div>
+                    <div class="form-group"><label>项目类型</label><input type="text" name="project_type"></div>
+                    <div class="form-group"><label>申报日期</label><input type="date" name="apply_date"></div>
+                    <div class="form-group"><label>审核状态</label>
+                        <select name="status">
+                            <option value="审核中">审核中</option>
+                            <option value="已通过">已通过</option>
+                            <option value="已驳回">已驳回</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width"><label>项目描述</label><textarea name="description"></textarea></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">关闭</button>
+                <button type="submit" class="btn btn-primary">提交</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openModal() { document.getElementById('modal').classList.add('active'); }
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+</script>
+{% endblock %}

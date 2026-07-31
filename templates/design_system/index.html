@@ -1,0 +1,184 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('design.index') }}" class="menu-item {% if request.endpoint == 'design.index' %}active{% endif %}">
+        <span class="icon">🏠</span> 首页
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">工艺管理</div>
+    <a href="{{ url_for('design.craft_processes') }}" class="menu-item">
+        <span class="icon">⚒️</span> 传统工艺适配管理
+    </a>
+    <a href="{{ url_for('design.product_schemes') }}" class="menu-item">
+        <span class="icon">📦</span> 手工艺品方案管理
+    </a>
+    <a href="{{ url_for('design.material_calc') }}" class="menu-item">
+        <span class="icon">🧮</span> 耗材计算
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">市场分析</div>
+    <a href="{{ url_for('design.trend_forecast') }}" class="menu-item">
+        <span class="icon">📈</span> 趋势预测
+    </a>
+    <a href="{{ url_for('design.demand_insight') }}" class="menu-item">
+        <span class="icon">💡</span> 需求洞察
+    </a>
+    <a href="{{ url_for('design.design_trends') }}" class="menu-item">
+        <span class="icon">📊</span> 设计趋势分析管理
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">文化传承</div>
+    <a href="{{ url_for('design.inheritors') }}" class="menu-item">
+        <span class="icon">👤</span> 非遗传承人管理
+    </a>
+    <a href="{{ url_for('design.cultural_knowledge') }}" class="menu-item">
+        <span class="icon">📖</span> 民族文化知识管理
+    </a>
+    <a href="{{ url_for('design.teaching_courses') }}" class="menu-item">
+        <span class="icon">🎓</span> 工艺教学课程管理
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">智能设计工具</div>
+    <a href="{{ url_for('design.pattern_generator') }}" class="menu-item">
+        <span class="icon">🎨</span> 纹样生成
+    </a>
+    <a href="{{ url_for('design.smart_design') }}" class="menu-item">
+        <span class="icon">🤖</span> 智能生成设计管理
+    </a>
+    <a href="{{ url_for('design.design_efficiency') }}" class="menu-item">
+        <span class="icon">⚡</span> 设计效能
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">订单管理</div>
+    <a href="{{ url_for('design.custom_orders') }}" class="menu-item">
+        <span class="icon">📋</span> 定制订单跟踪管理
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">设计素材库</div>
+    <a href="{{ url_for('design.pattern_materials') }}" class="menu-item">
+        <span class="icon">🖼️</span> 民族图案素材管理
+    </a>
+    <a href="{{ url_for('design.copyrights') }}" class="menu-item">
+        <span class="icon">©️</span> 数字版权登记管理
+    </a>
+</div>
+{% endblock %}
+
+{% block page_title %}首页{% endblock %}
+
+{% block content %}
+<!-- 横幅 -->
+<div class="hero-banner">
+    <div class="hero-content">
+        <h1>手艺云创民族手工艺品智能生成设计平台</h1>
+        <p>AI赋能传统工艺，一键生成专属文创设计方案</p>
+        <div class="hero-stats">
+            <div class="hero-stat-item">
+                <div class="number">1000+</div>
+                <div class="label">设计方案</div>
+            </div>
+            <div class="hero-stat-item">
+                <div class="number">50+</div>
+                <div class="label">传统工艺</div>
+            </div>
+            <div class="hero-stat-item">
+                <div class="number">2000+</div>
+                <div class="label">素材库</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 快捷入口 -->
+<div class="quick-entries">
+    <a href="{{ url_for('design.pattern_generator') }}" class="quick-entry">
+        <div class="icon">🎨</div>
+        <div class="title">纹样生成</div>
+    </a>
+    <a href="{{ url_for('design.smart_design') }}" class="quick-entry">
+        <div class="icon">🤖</div>
+        <div class="title">智能设计</div>
+    </a>
+    <a href="{{ url_for('design.product_schemes') }}" class="quick-entry">
+        <div class="icon">📦</div>
+        <div class="title">方案库</div>
+    </a>
+    <a href="{{ url_for('design.custom_orders') }}" class="quick-entry">
+        <div class="icon">📋</div>
+        <div class="title">定制订单</div>
+    </a>
+</div>
+
+<!-- 最新方案 & 热门工艺 -->
+<div class="two-column">
+    <div class="card">
+        <div class="card-title">最新设计方案</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>产品名称</th>
+                    <th>基础设计</th>
+                    <th>成本预算</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scheme in recent_schemes %}
+                <tr>
+                    <td>{{ scheme.product_name }}</td>
+                    <td>{{ scheme.base_design }}</td>
+                    <td>¥{{ scheme.cost_budget }}</td>
+                    <td>
+                        {% if scheme.status == '已发布' %}
+                        <span class="status-tag status-success">{{ scheme.status }}</span>
+                        {% elif scheme.status == '设计中' %}
+                        <span class="status-tag status-warning">{{ scheme.status }}</span>
+                        {% else %}
+                        <span class="status-tag status-default">{{ scheme.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="card">
+        <div class="card-title">热门传统工艺</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>工艺名称</th>
+                    <th>类型</th>
+                    <th>难度</th>
+                    <th>预估时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in recent_processes %}
+                <tr>
+                    <td>{{ p.process_name }}</td>
+                    <td>{{ p.process_type }}</td>
+                    <td><span class="status-tag status-warning">{{ p.difficulty }}</span></td>
+                    <td>{{ p.estimated_time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

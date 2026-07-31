@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('design.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">工艺管理</div>
+    <a href="{{ url_for('design.craft_processes') }}" class="menu-item"><span class="icon">⚒️</span> 传统工艺适配管理</a>
+    <a href="{{ url_for('design.product_schemes') }}" class="menu-item"><span class="icon">📦</span> 手工艺品方案管理</a>
+    <a href="{{ url_for('design.material_calc') }}" class="menu-item"><span class="icon">🧮</span> 耗材计算</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">市场分析</div>
+    <a href="{{ url_for('design.trend_forecast') }}" class="menu-item"><span class="icon">📈</span> 趋势预测</a>
+    <a href="{{ url_for('design.demand_insight') }}" class="menu-item"><span class="icon">💡</span> 需求洞察</a>
+    <a href="{{ url_for('design.design_trends') }}" class="menu-item"><span class="icon">📊</span> 设计趋势分析管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化传承</div>
+    <a href="{{ url_for('design.inheritors') }}" class="menu-item"><span class="icon">👤</span> 非遗传承人管理</a>
+    <a href="{{ url_for('design.cultural_knowledge') }}" class="menu-item"><span class="icon">📖</span> 民族文化知识管理</a>
+    <a href="{{ url_for('design.teaching_courses') }}" class="menu-item"><span class="icon">🎓</span> 工艺教学课程管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">智能设计工具</div>
+    <a href="{{ url_for('design.pattern_generator') }}" class="menu-item"><span class="icon">🎨</span> 纹样生成</a>
+    <a href="{{ url_for('design.smart_design') }}" class="menu-item"><span class="icon">🤖</span> 智能生成设计管理</a>
+    <a href="{{ url_for('design.design_efficiency') }}" class="menu-item"><span class="icon">⚡</span> 设计效能</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">订单管理</div>
+    <a href="{{ url_for('design.custom_orders') }}" class="menu-item"><span class="icon">📋</span> 定制订单跟踪管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">设计素材库</div>
+    <a href="{{ url_for('design.pattern_materials') }}" class="menu-item"><span class="icon">🖼️</span> 民族图案素材管理</a>
+    <a href="{{ url_for('design.copyrights') }}" class="menu-item"><span class="icon">©️</span> 数字版权登记管理</a>
+</div>
+{% endblock %}
+
+{% block page_title %}纹样生成{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-title">{{ page_title }}</div>
+    <p style="color: #999;">该模块功能开发中...</p>
+</div>
+{% endblock %}

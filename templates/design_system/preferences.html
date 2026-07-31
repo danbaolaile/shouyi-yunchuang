@@ -1,0 +1,205 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('design.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">工艺管理</div>
+    <a href="{{ url_for('design.craft_processes') }}" class="menu-item"><span class="icon">⚒️</span> 传统工艺适配管理</a>
+    <a href="{{ url_for('design.product_schemes') }}" class="menu-item"><span class="icon">📦</span> 手工艺品方案管理</a>
+    <a href="{{ url_for('design.material_calc') }}" class="menu-item"><span class="icon">🧮</span> 耗材计算</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">市场分析</div>
+    <a href="{{ url_for('design.trend_forecast') }}" class="menu-item"><span class="icon">📈</span> 趋势预测</a>
+    <a href="{{ url_for('design.demand_insight') }}" class="menu-item"><span class="icon">💡</span> 需求洞察</a>
+    <a href="{{ url_for('design.design_trends') }}" class="menu-item"><span class="icon">📊</span> 设计趋势分析管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化传承</div>
+    <a href="{{ url_for('design.inheritors') }}" class="menu-item"><span class="icon">👤</span> 非遗传承人管理</a>
+    <a href="{{ url_for('design.cultural_knowledge') }}" class="menu-item"><span class="icon">📖</span> 民族文化知识管理</a>
+    <a href="{{ url_for('design.teaching_courses') }}" class="menu-item"><span class="icon">🎓</span> 工艺教学课程管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">智能设计工具</div>
+    <a href="{{ url_for('design.pattern_generator') }}" class="menu-item"><span class="icon">🎨</span> 纹样生成</a>
+    <a href="{{ url_for('design.smart_design') }}" class="menu-item"><span class="icon">🤖</span> 智能生成设计管理</a>
+    <a href="{{ url_for('design.design_efficiency') }}" class="menu-item"><span class="icon">⚡</span> 设计效能</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">订单管理</div>
+    <a href="{{ url_for('design.custom_orders') }}" class="menu-item"><span class="icon">📋</span> 定制订单跟踪管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">设计素材库</div>
+    <a href="{{ url_for('design.pattern_materials') }}" class="menu-item"><span class="icon">🖼️</span> 民族图案素材管理</a>
+    <a href="{{ url_for('design.copyrights') }}" class="menu-item"><span class="icon">©️</span> 数字版权登记管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统设置</div>
+    <a href="{{ url_for('design.user_preferences') }}" class="menu-item active"><span class="icon">⚙️</span> 偏好自适应调控</a>
+</div>
+{% endblock %}
+
+{% block page_title %}偏好自适应调控 / AI智能学习{% endblock %}
+
+{% block content %}
+<div class="two-column">
+    <!-- 左侧：权重调节 -->
+    <div class="card">
+        <div class="card-title">🎚️ 六维度评分权重设置</div>
+        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">
+            调整各维度权重，AI评级和创作生成将自动强化您偏好的方向。权重范围：0.5 ~ 2.0
+        </p>
+        
+        <form method="POST" action="{{ url_for('design.update_preferences') }}">
+            <div style="space-y: 20px;">
+                <div class="form-group">
+                    <label style="display: flex; justify-content: space-between;">
+                        <span>创新性权重</span>
+                        <strong style="color: var(--theme-color);" id="w1-val">{{ prefs.weight_innovation }}</strong>
+                    </label>
+                    <input type="range" name="weight_innovation" min="0.5" max="2.0" step="0.1" 
+                           value="{{ prefs.weight_innovation }}" style="width: 100%;"
+                           oninput="document.getElementById('w1-val').textContent = this.value">
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: flex; justify-content: space-between;">
+                        <span>历史性权重</span>
+                        <strong style="color: var(--theme-color);" id="w2-val">{{ prefs.weight_history }}</strong>
+                    </label>
+                    <input type="range" name="weight_history" min="0.5" max="2.0" step="0.1" 
+                           value="{{ prefs.weight_history }}" style="width: 100%;"
+                           oninput="document.getElementById('w2-val').textContent = this.value">
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: flex; justify-content: space-between;">
+                        <span>艺术性权重</span>
+                        <strong style="color: var(--theme-color);" id="w3-val">{{ prefs.weight_art }}</strong>
+                    </label>
+                    <input type="range" name="weight_art" min="0.5" max="2.0" step="0.1" 
+                           value="{{ prefs.weight_art }}" style="width: 100%;"
+                           oninput="document.getElementById('w3-val').textContent = this.value">
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: flex; justify-content: space-between;">
+                        <span>实用性权重</span>
+                        <strong style="color: var(--theme-color);" id="w4-val">{{ prefs.weight_practical }}</strong>
+                    </label>
+                    <input type="range" name="weight_practical" min="0.5" max="2.0" step="0.1" 
+                           value="{{ prefs.weight_practical }}" style="width: 100%;"
+                           oninput="document.getElementById('w4-val').textContent = this.value">
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: flex; justify-content: space-between;">
+                        <span>文化价值权重</span>
+                        <strong style="color: var(--theme-color);" id="w5-val">{{ prefs.weight_culture }}</strong>
+                    </label>
+                    <input type="range" name="weight_culture" min="0.5" max="2.0" step="0.1" 
+                           value="{{ prefs.weight_culture }}" style="width: 100%;"
+                           oninput="document.getElementById('w5-val').textContent = this.value">
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: flex; justify-content: space-between;">
+                        <span>工艺难度权重</span>
+                        <strong style="color: var(--theme-color);" id="w6-val">{{ prefs.weight_craft }}</strong>
+                    </label>
+                    <input type="range" name="weight_craft" min="0.5" max="2.0" step="0.1" 
+                           value="{{ prefs.weight_craft }}" style="width: 100%;"
+                           oninput="document.getElementById('w6-val').textContent = this.value">
+                </div>
+            </div>
+            
+            <div style="margin-top: 24px; display: flex; gap: 12px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">💾 保存权重设置</button>
+                <a href="{{ url_for('design.reset_preferences') }}" class="btn btn-secondary" 
+                   onclick="return confirm('确定重置所有偏好为默认值吗？')">🔄 重置默认</a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- 右侧：学习统计 -->
+    <div class="card">
+        <div class="card-title">📊 AI学习统计</div>
+        
+        <div class="three-column" style="margin-bottom: 24px;">
+            <div style="text-align: center; padding: 16px; background: #f5f5f5; border-radius: 8px;">
+                <div style="font-size: 28px; font-weight: bold; color: var(--theme-color);">{{ prefs.total_searches }}</div>
+                <div style="font-size: 12px; color: #999;">总搜索次数</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: #f5f5f5; border-radius: 8px;">
+                <div style="font-size: 28px; font-weight: bold; color: var(--theme-color);">{{ prefs.total_designs }}</div>
+                <div style="font-size: 12px; color: #999;">总创建设计</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: #f5f5f5; border-radius: 8px;">
+                <div style="font-size: 28px; font-weight: bold; color: var(--theme-color);">{{ prefs.preference_level }}</div>
+                <div style="font-size: 12px; color: #999;">偏好等级</div>
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <h4 style="margin-bottom: 12px; font-size: 14px;">🔍 高频检索关键词</h4>
+            {% if keywords %}
+            <div>
+                {% for kw in keywords %}
+                <span style="display: inline-block; padding: 4px 12px; margin: 4px; background: #e8f5e9; color: #2e7d32; border-radius: 16px; font-size: 12px;">{{ kw }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="font-size: 13px; color: #999;">暂无记录，系统会自动学习您的搜索偏好</p>
+            {% endif %}
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <h4 style="margin-bottom: 12px; font-size: 14px;">🎨 常用创作风格</h4>
+            {% if styles %}
+            <div>
+                {% for s in styles %}
+                <span style="display: inline-block; padding: 4px 12px; margin: 4px; background: #e3f2fd; color: #1565c0; border-radius: 16px; font-size: 12px;">{{ s }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="font-size: 13px; color: #999;">暂无记录，系统会自动记录您的设计风格偏好</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- 底部说明 -->
+<div class="card" style="margin-top: 20px;">
+    <div class="card-title">💡 偏好自适应工作原理</div>
+    <div class="three-column">
+        <div>
+            <h4 style="margin-bottom: 10px; color: var(--theme-color);">1. 行为采集</h4>
+            <p style="font-size: 13px; color: #666; line-height: 1.6;">
+                系统持续记录您的搜索关键词、浏览的素材标签、创建的设计方案风格，构建您的专属用户画像。
+            </p>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 10px; color: var(--theme-color);">2. 动态调权</h4>
+            <p style="font-size: 13px; color: #666; line-height: 1.6;">
+                根据您的行为数据自动调整六维度评分权重。搜索"创新"越多，创新性维度权重越高，评分更贴合您的偏好。
+            </p>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 10px; color: var(--theme-color);">3. 创作强化</h4>
+            <p style="font-size: 13px; color: #666; line-height: 1.6;">
+                在AI智能评级和纹样生成环节，自动强化您偏好方向的输出倾向，让每次创作都更懂您的需求。
+            </p>
+        </div>
+    </div>
+    <div style="margin-top: 16px; padding: 12px; background: #fff8e1; border-radius: 8px;">
+        <p style="font-size: 13px; color: #f57f17; margin: 0;">
+            ⚡ <strong>偏好等级说明：</strong>初级(0-15次) → 中级(15-30次) → 高级(30-50次) → 深度定制(50次+)。使用越久，AI越懂您！
+        </p>
+    </div>
+</div>
+{% endblock %}

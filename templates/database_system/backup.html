@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('database.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">传承与发展</div>
+    <a href="{{ url_for('database.heritage_graph') }}" class="menu-item"><span class="icon">🕸️</span> 技法传承图谱</a>
+    <a href="{{ url_for('database.artisans') }}" class="menu-item"><span class="icon">👤</span> 传承人档案管理</a>
+    <a href="{{ url_for('database.trainings') }}" class="menu-item"><span class="icon">📚</span> 技艺培训管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">作品与资源管理</div>
+    <a href="{{ url_for('database.artworks') }}" class="menu-item"><span class="icon">🎨</span> 手工艺作品管理</a>
+    <a href="{{ url_for('database.fusion') }}" class="menu-item"><span class="icon">🔀</span> 元素融合设计</a>
+    <a href="{{ url_for('database.patterns') }}" class="menu-item"><span class="icon">🔍</span> 纹样智能检索</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">数据分析</div>
+    <a href="{{ url_for('database.category_analysis') }}" class="menu-item"><span class="icon">📊</span> 工艺品类分析</a>
+    <a href="{{ url_for('database.category_stats') }}" class="menu-item"><span class="icon">📈</span> 工艺品类统计管理</a>
+    <a href="{{ url_for('database.heritage_analysis') }}" class="menu-item"><span class="icon">📉</span> 非遗传承分析</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统管理</div>
+    <a href="{{ url_for('database.backup') }}" class="menu-item"><span class="icon">💾</span> 数据备份管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">项目管理</div>
+    <a href="{{ url_for('database.projects') }}" class="menu-item"><span class="icon">📋</span> 传承项目申报管理</a>
+    <a href="{{ url_for('database.exhibitions') }}" class="menu-item"><span class="icon">🖼️</span> 展览活动管理</a>
+    <a href="{{ url_for('database.international') }}" class="menu-item"><span class="icon">🌍</span> 国际合作管理</a>
+    <a href="{{ url_for('database.institutions') }}" class="menu-item"><span class="icon">🏛️</span> 文化机构管理</a>
+</div>
+{% endblock %}
+
+{% block page_title %}数据备份管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-title">{{ page_title }}</div>
+    <p style="color: #999;">该模块功能开发中...</p>
+</div>
+{% endblock %}

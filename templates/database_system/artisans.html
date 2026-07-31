@@ -1,0 +1,255 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('database.index') }}" class="menu-item">
+        <span class="icon">🏠</span> 首页
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">传承与发展</div>
+    <a href="{{ url_for('database.heritage_graph') }}" class="menu-item">
+        <span class="icon">🕸️</span> 技法传承图谱
+    </a>
+    <a href="{{ url_for('database.artisans') }}" class="menu-item active">
+        <span class="icon">👤</span> 传承人档案管理
+    </a>
+    <a href="{{ url_for('database.trainings') }}" class="menu-item">
+        <span class="icon">📚</span> 技艺培训管理
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">作品与资源管理</div>
+    <a href="{{ url_for('database.artworks') }}" class="menu-item">
+        <span class="icon">🎨</span> 手工艺作品管理
+    </a>
+    <a href="{{ url_for('database.fusion') }}" class="menu-item">
+        <span class="icon">🔀</span> 元素融合设计
+    </a>
+    <a href="{{ url_for('database.patterns') }}" class="menu-item">
+        <span class="icon">🔍</span> 纹样智能检索
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">数据分析</div>
+    <a href="{{ url_for('database.category_analysis') }}" class="menu-item">
+        <span class="icon">📊</span> 工艺品类分析
+    </a>
+    <a href="{{ url_for('database.category_stats') }}" class="menu-item">
+        <span class="icon">📈</span> 工艺品类统计管理
+    </a>
+    <a href="{{ url_for('database.heritage_analysis') }}" class="menu-item">
+        <span class="icon">📉</span> 非遗传承分析
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">系统管理</div>
+    <a href="{{ url_for('database.backup') }}" class="menu-item">
+        <span class="icon">💾</span> 数据备份管理
+    </a>
+</div>
+
+<div class="menu-group">
+    <div class="menu-title">项目管理</div>
+    <a href="{{ url_for('database.projects') }}" class="menu-item">
+        <span class="icon">📋</span> 传承项目申报管理
+    </a>
+    <a href="{{ url_for('database.exhibitions') }}" class="menu-item">
+        <span class="icon">🖼️</span> 展览活动管理
+    </a>
+    <a href="{{ url_for('database.international') }}" class="menu-item">
+        <span class="icon">🌍</span> 国际合作管理
+    </a>
+    <a href="{{ url_for('database.institutions') }}" class="menu-item">
+        <span class="icon">🏛️</span> 文化机构管理
+    </a>
+</div>
+{% endblock %}
+
+{% block page_title %}传承人档案管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <!-- 搜索栏 -->
+    <div class="search-bar">
+        <input type="text" placeholder="传承人编号" value="{{ search }}">
+        <input type="text" placeholder="姓名" value="{{ search }}">
+        <select>
+            <option value="">全部性别</option>
+            <option value="男">男</option>
+            <option value="女">女</option>
+        </select>
+        <select>
+            <option value="">全部技艺类别</option>
+        </select>
+        <button class="btn btn-primary">🔍 搜索</button>
+        <button class="btn btn-secondary">🔄 清空</button>
+    </div>
+    
+    <!-- 工具栏 -->
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新增</button>
+        <button class="btn btn-secondary">📥 导入</button>
+        <button class="btn btn-secondary">📤 导出</button>
+        <button class="btn btn-secondary">📊 按技艺类别统计</button>
+        <button class="btn btn-secondary">📋 师徒记录</button>
+    </div>
+    
+    <!-- 数据表格 -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th><input type="checkbox"></th>
+                <th>传承人编号</th>
+                <th>姓名</th>
+                <th>性别</th>
+                <th>民族</th>
+                <th>出生日期</th>
+                <th>技艺类别</th>
+                <th>传承级别</th>
+                <th>代表作品</th>
+                <th>现居地</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for artisan in artisans %}
+            <tr>
+                <td><input type="checkbox"></td>
+                <td>{{ artisan.artisan_id }}</td>
+                <td>{{ artisan.name }}</td>
+                <td>{{ artisan.gender }}</td>
+                <td>{{ artisan.ethnic_group }}</td>
+                <td>{{ artisan.birth_date }}</td>
+                <td>{{ artisan.skill_type }}</td>
+                <td><span class="status-tag status-info">{{ artisan.heritage_level }}</span></td>
+                <td>{{ artisan.representative_works }}</td>
+                <td>{{ artisan.location }}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="openEditModal({{ artisan.id }})">调整</button>
+                    <a href="{{ url_for('database.delete_artisan', id=artisan.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('确定删除？')">删除</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- 分页 -->
+    {% if pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('database.artisans', page=pagination.prev_num, search=search) }}">上一页</a>
+        {% endif %}
+        {% for page_num in pagination.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == pagination.page %}
+                <span class="current">{{ page_num }}</span>
+                {% else %}
+                <a href="{{ url_for('database.artisans', page=page_num, search=search) }}">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+            <span>...</span>
+            {% endif %}
+        {% endfor %}
+        {% if pagination.has_next %}
+        <a href="{{ url_for('database.artisans', page=pagination.next_num, search=search) }}">下一页</a>
+        {% endif %}
+        <span>共 {{ pagination.total }} 条</span>
+    </div>
+    {% endif %}
+</div>
+
+<!-- 新增/编辑模态框 -->
+<div class="modal-overlay" id="artisanModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle">新增传承人</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="artisanForm" method="POST">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>传承人编号</label>
+                        <input type="text" name="artisan_id" required>
+                    </div>
+                    <div class="form-group">
+                        <label>姓名</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>性别</label>
+                        <select name="gender">
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>民族</label>
+                        <input type="text" name="ethnic_group">
+                    </div>
+                    <div class="form-group">
+                        <label>出生日期</label>
+                        <input type="date" name="birth_date">
+                    </div>
+                    <div class="form-group">
+                        <label>技艺类别</label>
+                        <input type="text" name="skill_type">
+                    </div>
+                    <div class="form-group">
+                        <label>传承级别</label>
+                        <select name="heritage_level">
+                            <option value="国家级传承人">国家级传承人</option>
+                            <option value="省级传承人">省级传承人</option>
+                            <option value="市级传承人">市级传承人</option>
+                            <option value="县级传承人">县级传承人</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>代表作品</label>
+                        <input type="text" name="representative_works">
+                    </div>
+                    <div class="form-group">
+                        <label>联系方式</label>
+                        <input type="text" name="contact">
+                    </div>
+                    <div class="form-group">
+                        <label>现居地</label>
+                        <input type="text" name="location">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">关闭</button>
+                <button type="submit" class="btn btn-primary">确定</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = '新增传承人';
+    document.getElementById('artisanForm').action = "{{ url_for('database.add_artisan') }}";
+    document.getElementById('artisanForm').reset();
+    document.getElementById('artisanModal').classList.add('active');
+}
+
+function openEditModal(id) {
+    document.getElementById('modalTitle').textContent = '编辑传承人';
+    document.getElementById('artisanForm').action = '/database/artisans/' + id + '/edit';
+    document.getElementById('artisanModal').classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('artisanModal').classList.remove('active');
+}
+</script>
+{% endblock %}

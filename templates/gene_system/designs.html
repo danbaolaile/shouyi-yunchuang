@@ -1,0 +1,134 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('gene.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文创设计辅助</div>
+    <a href="{{ url_for('gene.fusion_design') }}" class="menu-item"><span class="icon">✨</span> 智能融合设计</a>
+    <a href="{{ url_for('gene.pattern_analysis') }}" class="menu-item"><span class="icon">🔬</span> 纹样智能解析</a>
+    <a href="{{ url_for('gene.designs') }}" class="menu-item active"><span class="icon">📝</span> 文创设计辅助管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化基因分析</div>
+    <a href="{{ url_for('gene.gene_stats') }}" class="menu-item"><span class="icon">📊</span> 基因识别统计</a>
+    <a href="{{ url_for('gene.gene_features') }}" class="menu-item"><span class="icon">🧬</span> 文化基因特征提取管理</a>
+    <a href="{{ url_for('gene.heritage_trace') }}" class="menu-item"><span class="icon">🔗</span> 传承关系溯源</a>
+    <a href="{{ url_for('gene.gene_atlas') }}" class="menu-item"><span class="icon">🗺️</span> 文化基因图谱构建管理</a>
+    <a href="{{ url_for('gene.gene_classifications') }}" class="menu-item"><span class="icon">📂</span> 文化基因分类管理</a>
+    <a href="{{ url_for('gene.gene_search') }}" class="menu-item"><span class="icon">🔍</span> 文化基因检索管理</a>
+    <a href="{{ url_for('gene.gene_reports') }}" class="menu-item"><span class="icon">📑</span> 文化基因分析报告管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化资源采集</div>
+    <a href="{{ url_for('gene.collections') }}" class="menu-item"><span class="icon">📦</span> 手工艺品采集管理</a>
+    <a href="{{ url_for('gene.interviews') }}" class="menu-item"><span class="icon">🎙️</span> 非遗传承人访谈管理</a>
+    <a href="{{ url_for('gene.teaching') }}" class="menu-item"><span class="icon">🎓</span> 文化传承教学管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统管理</div>
+    <a href="{{ url_for('gene.system_monitor') }}" class="menu-item"><span class="icon">🖥️</span> 系统效能监控</a>
+    <a href="{{ url_for('gene.gene_review') }}" class="menu-item"><span class="icon">✅</span> 基因审核流程管理</a>
+</div>
+{% endblock %}
+
+{% block page_title %}文创设计辅助管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="search-bar">
+        <input type="text" placeholder="设计师">
+        <input type="text" placeholder="设计主题">
+        <select>
+            <option value="">全部状态</option>
+            <option value="进行中">进行中</option>
+            <option value="已发布">已发布</option>
+            <option value="已归档">已归档</option>
+        </select>
+        <button class="btn btn-primary">🔍 搜索</button>
+    </div>
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openModal()">+ 新增设计</button>
+        <button class="btn btn-secondary">📊 设计统计</button>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>设计编号</th>
+                <th>设计主题</th>
+                <th>设计师</th>
+                <th>设计日期</th>
+                <th>参考基因</th>
+                <th>文化元素</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for design in designs %}
+            <tr>
+                <td>{{ design.design_id }}</td>
+                <td>{{ design.theme }}</td>
+                <td>{{ design.designer }}</td>
+                <td>{{ design.design_date }}</td>
+                <td>{{ design.reference_gene }}</td>
+                <td>{{ design.cultural_elements }}</td>
+                <td>
+                    {% if design.status == '已发布' %}
+                    <span class="status-tag status-success">{{ design.status }}</span>
+                    {% elif design.status == '进行中' %}
+                    <span class="status-tag status-warning">{{ design.status }}</span>
+                    {% else %}
+                    <span class="status-tag status-default">{{ design.status }}</span>
+                    {% endif %}
+                </td>
+                <td><button class="btn btn-sm btn-primary">编辑</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">新增文创设计</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('gene.add_design') }}">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>设计编号</label><input type="text" name="design_id" required></div>
+                    <div class="form-group"><label>设计师</label><input type="text" name="designer"></div>
+                    <div class="form-group"><label>设计日期</label><input type="date" name="design_date"></div>
+                    <div class="form-group"><label>设计主题</label><input type="text" name="theme"></div>
+                    <div class="form-group"><label>参考基因</label><input type="text" name="reference_gene"></div>
+                    <div class="form-group"><label>文化元素</label><input type="text" name="cultural_elements"></div>
+                    <div class="form-group"><label>状态</label>
+                        <select name="status">
+                            <option value="进行中">进行中</option>
+                            <option value="已发布">已发布</option>
+                            <option value="已归档">已归档</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width"><label>设计描述</label><textarea name="description"></textarea></div>
+                    <div class="form-group full-width"><label>审核意见</label><textarea name="review_opinion"></textarea></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">关闭</button>
+                <button type="submit" class="btn btn-primary">确定</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openModal() { document.getElementById('modal').classList.add('active'); }
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+</script>
+{% endblock %}

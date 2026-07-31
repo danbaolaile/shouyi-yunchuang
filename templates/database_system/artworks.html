@@ -1,0 +1,130 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('database.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">传承与发展</div>
+    <a href="{{ url_for('database.heritage_graph') }}" class="menu-item"><span class="icon">🕸️</span> 技法传承图谱</a>
+    <a href="{{ url_for('database.artisans') }}" class="menu-item"><span class="icon">👤</span> 传承人档案管理</a>
+    <a href="{{ url_for('database.trainings') }}" class="menu-item"><span class="icon">📚</span> 技艺培训管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">作品与资源管理</div>
+    <a href="{{ url_for('database.artworks') }}" class="menu-item active"><span class="icon">🎨</span> 手工艺作品管理</a>
+    <a href="{{ url_for('database.fusion') }}" class="menu-item"><span class="icon">🔀</span> 元素融合设计</a>
+    <a href="{{ url_for('database.patterns') }}" class="menu-item"><span class="icon">🔍</span> 纹样智能检索</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">数据分析</div>
+    <a href="{{ url_for('database.category_analysis') }}" class="menu-item"><span class="icon">📊</span> 工艺品类分析</a>
+    <a href="{{ url_for('database.category_stats') }}" class="menu-item"><span class="icon">📈</span> 工艺品类统计管理</a>
+    <a href="{{ url_for('database.heritage_analysis') }}" class="menu-item"><span class="icon">📉</span> 非遗传承分析</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统管理</div>
+    <a href="{{ url_for('database.backup') }}" class="menu-item"><span class="icon">💾</span> 数据备份管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">项目管理</div>
+    <a href="{{ url_for('database.projects') }}" class="menu-item"><span class="icon">📋</span> 传承项目申报管理</a>
+    <a href="{{ url_for('database.exhibitions') }}" class="menu-item"><span class="icon">🖼️</span> 展览活动管理</a>
+    <a href="{{ url_for('database.international') }}" class="menu-item"><span class="icon">🌍</span> 国际合作管理</a>
+    <a href="{{ url_for('database.institutions') }}" class="menu-item"><span class="icon">🏛️</span> 文化机构管理</a>
+</div>
+{% endblock %}
+
+{% block page_title %}手工艺作品管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="search-bar">
+        <input type="text" placeholder="作品编号">
+        <input type="text" placeholder="作品名称">
+        <select><option value="">全部工艺技法</option></select>
+        <select><option value="">全部作品状态</option></select>
+        <button class="btn btn-primary">🔍 搜索</button>
+        <button class="btn btn-secondary">🔄 清空</button>
+    </div>
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openModal()">+ 新增</button>
+        <button class="btn btn-secondary">📥 批量导入</button>
+        <button class="btn btn-secondary">📤 导出</button>
+        <button class="btn btn-secondary">📊 分类统计</button>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th><input type="checkbox"></th>
+                <th>作品编号</th>
+                <th>作品名称</th>
+                <th>创作者</th>
+                <th>主要材质</th>
+                <th>工艺技法</th>
+                <th>纹样类型</th>
+                <th>文化价值</th>
+                <th>作品状态</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for artwork in artworks %}
+            <tr>
+                <td><input type="checkbox"></td>
+                <td>{{ artwork.artwork_id }}</td>
+                <td>{{ artwork.title }}</td>
+                <td>{{ artwork.artisan }}</td>
+                <td>{{ artwork.material }}</td>
+                <td>{{ artwork.technique }}</td>
+                <td>{{ artwork.pattern_type }}</td>
+                <td>{{ artwork.cultural_value }}</td>
+                <td><span class="status-tag status-info">{{ artwork.status }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">新增手工艺品</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('database.add_artwork') }}">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>作品编号</label><input type="text" name="artwork_id" required></div>
+                    <div class="form-group"><label>作品名称</label><input type="text" name="title" required></div>
+                    <div class="form-group"><label>创作者</label><input type="text" name="artisan"></div>
+                    <div class="form-group"><label>主要材质</label><input type="text" name="material"></div>
+                    <div class="form-group"><label>工艺技法</label><input type="text" name="technique"></div>
+                    <div class="form-group"><label>纹样类型</label><input type="text" name="pattern_type"></div>
+                    <div class="form-group"><label>文化价值</label><input type="text" name="cultural_value"></div>
+                    <div class="form-group"><label>作品状态</label>
+                        <select name="status">
+                            <option value="已归档">已归档</option>
+                            <option value="展出中">展出中</option>
+                            <option value="修复中">修复中</option>
+                            <option value="待审核">待审核</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width"><label>作品描述</label><textarea name="description"></textarea></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">关闭</button>
+                <button type="submit" class="btn btn-primary">确定</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openModal() { document.getElementById('modal').classList.add('active'); }
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+</script>
+{% endblock %}

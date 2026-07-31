@@ -1,0 +1,234 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('design.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">工艺管理</div>
+    <a href="{{ url_for('design.craft_processes') }}" class="menu-item"><span class="icon">⚒️</span> 传统工艺适配管理</a>
+    <a href="{{ url_for('design.product_schemes') }}" class="menu-item active"><span class="icon">📦</span> 手工艺品方案管理</a>
+    <a href="{{ url_for('design.material_calc') }}" class="menu-item"><span class="icon">🧮</span> 耗材计算</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">市场分析</div>
+    <a href="{{ url_for('design.trend_forecast') }}" class="menu-item"><span class="icon">📈</span> 趋势预测</a>
+    <a href="{{ url_for('design.demand_insight') }}" class="menu-item"><span class="icon">💡</span> 需求洞察</a>
+    <a href="{{ url_for('design.design_trends') }}" class="menu-item"><span class="icon">📊</span> 设计趋势分析管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化传承</div>
+    <a href="{{ url_for('design.inheritors') }}" class="menu-item"><span class="icon">👤</span> 非遗传承人管理</a>
+    <a href="{{ url_for('design.cultural_knowledge') }}" class="menu-item"><span class="icon">📖</span> 民族文化知识管理</a>
+    <a href="{{ url_for('design.teaching_courses') }}" class="menu-item"><span class="icon">🎓</span> 工艺教学课程管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">智能设计工具</div>
+    <a href="{{ url_for('design.pattern_generator') }}" class="menu-item"><span class="icon">🎨</span> 纹样生成</a>
+    <a href="{{ url_for('design.smart_design') }}" class="menu-item"><span class="icon">🤖</span> 智能生成设计管理</a>
+    <a href="{{ url_for('design.design_efficiency') }}" class="menu-item"><span class="icon">⚡</span> 设计效能</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">订单管理</div>
+    <a href="{{ url_for('design.custom_orders') }}" class="menu-item"><span class="icon">📋</span> 定制订单跟踪管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">设计素材库</div>
+    <a href="{{ url_for('design.pattern_materials') }}" class="menu-item"><span class="icon">🖼️</span> 民族图案素材管理</a>
+    <a href="{{ url_for('design.copyrights') }}" class="menu-item"><span class="icon">©️</span> 数字版权登记管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统设置</div>
+    <a href="{{ url_for('design.user_preferences') }}" class="menu-item"><span class="icon">⚙️</span> 偏好自适应调控</a>
+</div>
+{% endblock %}
+
+{% block page_title %}手工艺品方案管理 / AI智能评级{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="search-bar">
+        <input type="text" placeholder="方案名称" value="{{ search }}" id="searchInput">
+        <select>
+            <option value="">全部市场等级</option>
+            <option value="S级">S级 - 极高需求</option>
+            <option value="A级">A级 - 高需求</option>
+            <option value="B级">B级 - 中等需求</option>
+            <option value="C级">C级 - 一般需求</option>
+        </select>
+        <button class="btn btn-primary" onclick="doSearch()">🔍 搜索</button>
+    </div>
+    
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新增方案</button>
+        <a href="{{ url_for('design.batch_rate_schemes') }}" class="btn btn-success">🤖 批量AI评级</a>
+        <button class="btn btn-secondary">📊 评级统计</button>
+    </div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>方案编号</th>
+                <th>方案名称</th>
+                <th>基础设计</th>
+                <th>适用工艺</th>
+                <th>综合评分</th>
+                <th>市场等级</th>
+                <th>六维度雷达</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in schemes %}
+            <tr>
+                <td>{{ s.product_id }}</td>
+                <td>{{ s.product_name }}</td>
+                <td>{{ s.base_design or '-' }}</td>
+                <td>{{ s.applicable_craft or '-' }}</td>
+                <td>
+                    {% if s.is_ai_rated %}
+                    <strong style="font-size: 18px; color: var(--theme-color);">{{ s.total_score }}</strong>
+                    <span style="font-size: 12px; color: #999;">分</span>
+                    {% else %}
+                    <span style="color: #ccc;">未评级</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if s.market_level == 'S级' %}
+                    <span style="display: inline-block; padding: 4px 12px; background: linear-gradient(135deg, #ffd700, #ff8c00); color: white; border-radius: 12px; font-weight: bold;">S级</span>
+                    {% elif s.market_level == 'A级' %}
+                    <span class="status-tag status-success">{{ s.market_level }}</span>
+                    {% elif s.market_level == 'B级' %}
+                    <span class="status-tag status-warning">{{ s.market_level }}</span>
+                    {% else %}
+                    <span class="status-tag status-default">{{ s.market_level }}</span>
+                    {% endif %}
+                </td>
+                <td style="font-size: 11px; color: #888; max-width: 150px;">
+                    {% if s.is_ai_rated %}
+                    创新{{ s.innovation_score }} · 历史{{ s.history_score }}<br>
+                    艺术{{ s.art_score }} · 实用{{ s.practical_score }}<br>
+                    文化{{ s.culture_score }} · 工艺{{ s.craft_score }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td><span class="status-tag status-info">{{ s.status }}</span></td>
+                <td>
+                    {% if not s.is_ai_rated %}
+                    <a href="{{ url_for('design.ai_rate_scheme', id=s.id) }}" class="btn btn-sm btn-success">AI评级</a>
+                    {% else %}
+                    <a href="{{ url_for('design.ai_rate_scheme', id=s.id) }}" class="btn btn-sm btn-secondary">重新评级</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" style="text-align: center; color: #999; padding: 40px;">暂无方案数据</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('design.product_schemes', page=pagination.prev_num, search=search) }}">上一页</a>
+        {% endif %}
+        <span>共 {{ pagination.total }} 条</span>
+        {% if pagination.has_next %}
+        <a href="{{ url_for('design.product_schemes', page=pagination.next_num, search=search) }}">下一页</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- 评级说明卡片 -->
+<div class="card" style="margin-top: 20px;">
+    <div class="card-title">📊 AI智能评级说明</div>
+    <div class="three-column">
+        <div>
+            <h4 style="margin-bottom: 12px; color: var(--theme-color);">六大评价维度</h4>
+            <ul style="font-size: 13px; color: #666; line-height: 2;">
+                <li><strong>创新性</strong>：设计创意与新颖程度</li>
+                <li><strong>历史性</strong>：历史文化底蕴深度</li>
+                <li><strong>艺术性</strong>：美学价值与视觉表现</li>
+                <li><strong>实用性</strong>：功能实用与市场适配</li>
+                <li><strong>文化价值</strong>：民族文化承载量</li>
+                <li><strong>工艺难度</strong>：制作技艺复杂度</li>
+            </ul>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 12px; color: var(--theme-color);">市场需求等级</h4>
+            <ul style="font-size: 13px; color: #666; line-height: 2;">
+                <li><span style="color: #ff8c00; font-weight: bold;">S级</span>：90分以上，极高市场需求</li>
+                <li><span style="color: #4caf50; font-weight: bold;">A级</span>：80-89分，高市场需求</li>
+                <li><span style="color: #ff9800; font-weight: bold;">B级</span>：70-79分，中等市场需求</li>
+                <li><span style="color: #999; font-weight: bold;">C级</span>：70分以下，一般市场需求</li>
+            </ul>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 12px; color: var(--theme-color);">偏好自适应</h4>
+            <p style="font-size: 13px; color: #666; line-height: 1.8;">
+                系统会根据您的搜索历史和创作习惯，动态调整六维度评分权重。
+                您也可以在<strong>偏好自适应调控</strong>页面手动调整权重，
+                让AI评级更符合您的审美和业务偏好。
+            </p>
+            <a href="{{ url_for('design.user_preferences') }}" class="btn btn-sm btn-primary" style="margin-top: 8px;">去设置偏好 →</a>
+        </div>
+    </div>
+</div>
+
+<!-- 新增方案模态框 -->
+<div class="modal-overlay" id="addModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">新增产品方案</span>
+            <button class="modal-close" onclick="closeAddModal()">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('design.add_product_scheme') }}">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>方案编号</label><input type="text" name="product_id" required></div>
+                    <div class="form-group"><label>方案名称</label><input type="text" name="product_name" required></div>
+                    <div class="form-group"><label>基础设计</label><input type="text" name="base_design"></div>
+                    <div class="form-group"><label>适用工艺</label><input type="text" name="applicable_craft"></div>
+                    <div class="form-group"><label>成本预算</label><input type="text" name="cost_budget"></div>
+                    <div class="form-group"><label>建议售价</label><input type="text" name="suggested_price"></div>
+                    <div class="form-group"><label>状态</label>
+                        <select name="status">
+                            <option value="设计中">设计中</option>
+                            <option value="已完成">已完成</option>
+                            <option value="已发布">已发布</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>文化价值</label><input type="text" name="cultural_value"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeAddModal()">取消</button>
+                <button type="submit" class="btn btn-primary">确定</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function doSearch() {
+    const search = document.getElementById('searchInput').value;
+    window.location.href = '/design/product-schemes?search=' + encodeURIComponent(search);
+}
+
+function openAddModal() {
+    document.getElementById('addModal').classList.add('active');
+}
+
+function closeAddModal() {
+    document.getElementById('addModal').classList.remove('active');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,166 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('database.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">传承与发展</div>
+    <a href="{{ url_for('database.heritage_graph') }}" class="menu-item"><span class="icon">🔗</span> 技法传承图谱</a>
+    <a href="{{ url_for('database.artisans') }}" class="menu-item"><span class="icon">👤</span> 传承人档案管理</a>
+    <a href="{{ url_for('database.trainings') }}" class="menu-item"><span class="icon">🎓</span> 技艺培训管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">作品与资源管理</div>
+    <a href="{{ url_for('database.artworks') }}" class="menu-item"><span class="icon">🏺</span> 手工艺作品管理</a>
+    <a href="{{ url_for('database.fusion') }}" class="menu-item"><span class="icon">🔀</span> 元素融合设计</a>
+    <a href="{{ url_for('database.patterns') }}" class="menu-item"><span class="icon">🎨</span> 纹样智能检索</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">数据分析</div>
+    <a href="{{ url_for('database.category_analysis') }}" class="menu-item"><span class="icon">📊</span> 工艺品类分析</a>
+    <a href="{{ url_for('database.category_stats') }}" class="menu-item"><span class="icon">📈</span> 工艺品类统计管理</a>
+    <a href="{{ url_for('database.heritage_analysis') }}" class="menu-item"><span class="icon">📉</span> 非遗传承分析</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统管理</div>
+    <a href="{{ url_for('database.backup') }}" class="menu-item"><span class="icon">💾</span> 数据备份管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">项目管理</div>
+    <a href="{{ url_for('database.projects') }}" class="menu-item"><span class="icon">📋</span> 传承项目申报管理</a>
+    <a href="{{ url_for('database.exhibitions') }}" class="menu-item"><span class="icon">🖼️</span> 展览活动管理</a>
+    <a href="{{ url_for('database.international') }}" class="menu-item"><span class="icon">🌍</span> 国际合作管理</a>
+    <a href="{{ url_for('database.institutions') }}" class="menu-item active"><span class="icon">🏛️</span> 文化机构管理</a>
+</div>
+{% endblock %}
+
+{% block page_title %}文化机构管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="search-bar">
+        <input type="text" placeholder="机构名称" value="{{ search }}" id="searchInput">
+        <select>
+            <option value="">全部级别</option>
+            <option value="国家级">国家级</option>
+            <option value="省级">省级</option>
+            <option value="市级">市级</option>
+            <option value="区县级">区县级</option>
+        </select>
+        <button class="btn btn-primary" onclick="doSearch()">🔍 搜索</button>
+        <button class="btn btn-secondary" onclick="clearSearch()">🔄 清空</button>
+    </div>
+    
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新增机构</button>
+        <button class="btn btn-secondary">🗺️ 按地区分布</button>
+        <button class="btn btn-secondary">📊 机构统计</button>
+    </div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>机构ID</th>
+                <th>机构名称</th>
+                <th>机构类型</th>
+                <th>所在地区</th>
+                <th>联系方式</th>
+                <th>机构级别</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inst in institutions %}
+            <tr>
+                <td>{{ inst.institution_id }}</td>
+                <td><strong>{{ inst.name }}</strong></td>
+                <td>{{ inst.type or '-' }}</td>
+                <td>{{ inst.location or '-' }}</td>
+                <td>{{ inst.contact or '-' }}</td>
+                <td>
+                    {% if inst.level == '国家级' %}
+                    <span class="status-tag status-error">{{ inst.level }}</span>
+                    {% elif inst.level == '省级' %}
+                    <span class="status-tag status-warning">{{ inst.level }}</span>
+                    {% else %}
+                    <span class="status-tag status-info">{{ inst.level }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-primary">编辑</button>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align: center; color: #999; padding: 40px;">暂无机构数据</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('database.institutions', page=pagination.prev_num, search=search) }}">上一页</a>
+        {% endif %}
+        <span>共 {{ pagination.total }} 条</span>
+        {% if pagination.has_next %}
+        <a href="{{ url_for('database.institutions', page=pagination.next_num, search=search) }}">下一页</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- 新增模态框 -->
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">新增文化机构</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('database.add_institution') }}">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>机构ID</label><input type="text" name="institution_id" required></div>
+                    <div class="form-group"><label>机构名称 *</label><input type="text" name="name" required></div>
+                    <div class="form-group"><label>机构类型</label><input type="text" name="type" placeholder="博物馆/研究院/传承中心等"></div>
+                    <div class="form-group"><label>机构级别</label>
+                        <select name="level">
+                            <option value="国家级">国家级</option>
+                            <option value="省级">省级</option>
+                            <option value="市级">市级</option>
+                            <option value="区县级">区县级</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>所在地区</label><input type="text" name="location"></div>
+                    <div class="form-group"><label>联系方式</label><input type="text" name="contact"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button type="submit" class="btn btn-primary">确定保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function doSearch() {
+    const search = document.getElementById('searchInput').value;
+    window.location.href = '/database/institutions?search=' + encodeURIComponent(search);
+}
+function clearSearch() {
+    window.location.href = '/database/institutions';
+}
+function openAddModal() {
+    document.getElementById('modal').classList.add('active');
+}
+function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('gene.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文创设计辅助</div>
+    <a href="{{ url_for('gene.fusion_design') }}" class="menu-item"><span class="icon">✨</span> 智能融合设计</a>
+    <a href="{{ url_for('gene.pattern_analysis') }}" class="menu-item"><span class="icon">🔬</span> 纹样智能解析</a>
+    <a href="{{ url_for('gene.designs') }}" class="menu-item"><span class="icon">📝</span> 文创设计辅助管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化基因分析</div>
+    <a href="{{ url_for('gene.gene_stats') }}" class="menu-item"><span class="icon">📊</span> 基因识别统计</a>
+    <a href="{{ url_for('gene.gene_features') }}" class="menu-item"><span class="icon">🧬</span> 文化基因特征提取管理</a>
+    <a href="{{ url_for('gene.heritage_trace') }}" class="menu-item"><span class="icon">🔗</span> 传承关系溯源</a>
+    <a href="{{ url_for('gene.gene_atlas') }}" class="menu-item"><span class="icon">🗺️</span> 文化基因图谱构建管理</a>
+    <a href="{{ url_for('gene.gene_classifications') }}" class="menu-item"><span class="icon">📂</span> 文化基因分类管理</a>
+    <a href="{{ url_for('gene.gene_search') }}" class="menu-item"><span class="icon">🔍</span> 文化基因检索管理</a>
+    <a href="{{ url_for('gene.gene_reports') }}" class="menu-item"><span class="icon">📑</span> 文化基因分析报告管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化资源采集</div>
+    <a href="{{ url_for('gene.collections') }}" class="menu-item"><span class="icon">📦</span> 手工艺品采集管理</a>
+    <a href="{{ url_for('gene.interviews') }}" class="menu-item"><span class="icon">🎙️</span> 非遗传承人访谈管理</a>
+    <a href="{{ url_for('gene.teaching') }}" class="menu-item"><span class="icon">🎓</span> 文化传承教学管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统管理</div>
+    <a href="{{ url_for('gene.system_monitor') }}" class="menu-item"><span class="icon">🖥️</span> 系统效能监控</a>
+    <a href="{{ url_for('gene.gene_review') }}" class="menu-item"><span class="icon">✅</span> 基因审核流程管理</a>
+</div>
+{% endblock %}
+
+{% block page_title %}文化基因图谱构建管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-title">{{ page_title }}</div>
+    <p style="color: #999;">该模块功能开发中...</p>
+</div>
+{% endblock %}

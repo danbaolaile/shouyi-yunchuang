@@ -1,0 +1,199 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('gene.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文创设计辅助</div>
+    <a href="{{ url_for('gene.fusion_design') }}" class="menu-item"><span class="icon">🔀</span> 智能融合设计</a>
+    <a href="{{ url_for('gene.pattern_analysis') }}" class="menu-item"><span class="icon">🔍</span> 纹样智能解析</a>
+    <a href="{{ url_for('gene.designs') }}" class="menu-item"><span class="icon">🎨</span> 文创设计辅助管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化基因分析</div>
+    <a href="{{ url_for('gene.gene_stats') }}" class="menu-item"><span class="icon">📊</span> 基因识别统计</a>
+    <a href="{{ url_for('gene.gene_features') }}" class="menu-item active"><span class="icon">🧬</span> 文化基因特征提取管理</a>
+    <a href="{{ url_for('gene.heritage_trace') }}" class="menu-item"><span class="icon">🔗</span> 传承关系溯源</a>
+    <a href="{{ url_for('gene.gene_atlas') }}" class="menu-item"><span class="icon">🗺️</span> 文化基因图谱构建管理</a>
+    <a href="{{ url_for('gene.gene_classifications') }}" class="menu-item"><span class="icon">📂</span> 文化基因分类管理</a>
+    <a href="{{ url_for('gene.gene_search') }}" class="menu-item"><span class="icon">🔎</span> 文化基因检索管理</a>
+    <a href="{{ url_for('gene.gene_reports') }}" class="menu-item"><span class="icon">📑</span> 文化基因分析报告管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化资源采集</div>
+    <a href="{{ url_for('gene.collections') }}" class="menu-item"><span class="icon">📦</span> 手工艺品采集管理</a>
+    <a href="{{ url_for('gene.interviews') }}" class="menu-item"><span class="icon">🎙️</span> 非遗传承人访谈管理</a>
+    <a href="{{ url_for('gene.teaching') }}" class="menu-item"><span class="icon">📚</span> 文化传承教学管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统管理</div>
+    <a href="{{ url_for('gene.system_monitor') }}" class="menu-item"><span class="icon">🖥️</span> 系统效能监控</a>
+    <a href="{{ url_for('gene.gene_review') }}" class="menu-item"><span class="icon">✅</span> 基因审核流程管理</a>
+</div>
+{% endblock %}
+
+{% block page_title %}文化基因特征提取管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="search-bar">
+        <input type="text" placeholder="特征描述/采集编号" value="{{ search }}" id="searchInput">
+        <select>
+            <option value="">全部特征类型</option>
+            <option value="视觉特征">视觉特征</option>
+            <option value="纹理特征">纹理特征</option>
+            <option value="色彩特征">色彩特征</option>
+            <option value="结构特征">结构特征</option>
+        </select>
+        <button class="btn btn-primary" onclick="doSearch()">🔍 搜索</button>
+        <button class="btn btn-secondary" onclick="clearSearch()">🔄 清空</button>
+    </div>
+    
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新增特征提取</button>
+        <button class="btn btn-success">🤖 批量AI提取</button>
+        <button class="btn btn-secondary">📊 特征统计</button>
+    </div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>特征ID</th>
+                <th>特征类型</th>
+                <th>关联采集</th>
+                <th>特征描述</th>
+                <th>提取算法</th>
+                <th>提取人</th>
+                <th>置信度</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in features %}
+            <tr>
+                <td>{{ f.feature_id }}</td>
+                <td><span class="status-tag status-info">{{ f.feature_type or '-' }}</span></td>
+                <td>{{ f.related_collection_id or '-' }}</td>
+                <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ f.feature_description or '-' }}</td>
+                <td>{{ f.extraction_algorithm or '-' }}</td>
+                <td>{{ f.extractor or '-' }}</td>
+                <td>
+                    {% if f.confidence %}
+                    <strong>{{ '%.0f'|format(f.confidence * 100) }}%</strong>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if f.status == '已确认' %}
+                    <span class="status-tag status-success">{{ f.status }}</span>
+                    {% elif f.status == '待审核' %}
+                    <span class="status-tag status-warning">{{ f.status }}</span>
+                    {% else %}
+                    <span class="status-tag status-default">{{ f.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="openEditModal({{ f.id }}, '{{ f.feature_id }}', '{{ f.feature_type or '' }}', '{{ f.related_collection_id or '' }}', '{{ f.feature_description or '' }}', '{{ f.extraction_algorithm or '' }}', '{{ f.extractor or '' }}', '{{ f.confidence or 0 }}', '{{ f.status or '待审核' }}')">编辑</button>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" style="text-align: center; color: #999; padding: 40px;">暂无特征提取数据</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('gene.gene_features', page=pagination.prev_num, search=search) }}">上一页</a>
+        {% endif %}
+        <span>共 {{ pagination.total }} 条</span>
+        {% if pagination.has_next %}
+        <a href="{{ url_for('gene.gene_features', page=pagination.next_num, search=search) }}">下一页</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- 新增/编辑模态框 -->
+<div class="modal-overlay" id="modal">
+    <div class="modal" style="width: 600px;">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle">新增特征提取</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="form" method="POST">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>特征ID</label><input type="text" name="feature_id" id="f_id" required></div>
+                    <div class="form-group"><label>特征类型</label>
+                        <select name="feature_type" id="f_type">
+                            <option value="视觉特征">视觉特征</option>
+                            <option value="纹理特征">纹理特征</option>
+                            <option value="色彩特征">色彩特征</option>
+                            <option value="结构特征">结构特征</option>
+                            <option value="语义特征">语义特征</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>关联采集ID</label><input type="text" name="related_collection_id" id="f_collection"></div>
+                    <div class="form-group"><label>提取算法</label><input type="text" name="extraction_algorithm" id="f_algo"></div>
+                    <div class="form-group"><label>提取人</label><input type="text" name="extractor" id="f_extractor"></div>
+                    <div class="form-group"><label>置信度 (0-1)</label><input type="number" step="0.01" min="0" max="1" name="confidence" id="f_confidence" value="0.85"></div>
+                    <div class="form-group full-width"><label>特征描述</label><textarea name="feature_description" id="f_desc" rows="2"></textarea></div>
+                    <div class="form-group"><label>状态</label>
+                        <select name="status" id="f_status">
+                            <option value="待审核">待审核</option>
+                            <option value="已确认">已确认</option>
+                            <option value="已驳回">已驳回</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button type="submit" class="btn btn-primary">确定保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function doSearch() {
+    const search = document.getElementById('searchInput').value;
+    window.location.href = '/gene/gene-features?search=' + encodeURIComponent(search);
+}
+function clearSearch() {
+    window.location.href = '/gene/gene-features';
+}
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = '新增特征提取';
+    document.getElementById('form').action = "{{ url_for('gene.add_gene_feature') }}";
+    document.getElementById('form').reset();
+    document.getElementById('modal').classList.add('active');
+}
+function openEditModal(id, fid, ftype, collection, desc, algo, extractor, confidence, status) {
+    document.getElementById('modalTitle').textContent = '编辑特征提取';
+    document.getElementById('form').action = '/gene/gene-features/' + id + '/edit';
+    document.getElementById('f_id').value = fid;
+    document.getElementById('f_type').value = ftype || '视觉特征';
+    document.getElementById('f_collection').value = collection;
+    document.getElementById('f_desc').value = desc;
+    document.getElementById('f_algo').value = algo;
+    document.getElementById('f_extractor').value = extractor;
+    document.getElementById('f_confidence').value = confidence || 0.85;
+    document.getElementById('f_status').value = status || '待审核';
+    document.getElementById('modal').classList.add('active');
+}
+function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+}
+</script>
+{% endblock %}

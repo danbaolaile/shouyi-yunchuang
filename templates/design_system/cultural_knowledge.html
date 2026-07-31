@@ -1,0 +1,174 @@
+{% extends "layout.html" %}
+
+{% block sidebar %}
+<div class="menu-group">
+    <div class="menu-title">首页</div>
+    <a href="{{ url_for('design.index') }}" class="menu-item"><span class="icon">🏠</span> 首页</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">工艺管理</div>
+    <a href="{{ url_for('design.craft_processes') }}" class="menu-item"><span class="icon">⚒️</span> 传统工艺适配管理</a>
+    <a href="{{ url_for('design.product_schemes') }}" class="menu-item"><span class="icon">📦</span> 手工艺品方案管理</a>
+    <a href="{{ url_for('design.material_calc') }}" class="menu-item"><span class="icon">🧮</span> 耗材计算</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">市场分析</div>
+    <a href="{{ url_for('design.trend_forecast') }}" class="menu-item"><span class="icon">📈</span> 趋势预测</a>
+    <a href="{{ url_for('design.demand_insight') }}" class="menu-item"><span class="icon">💡</span> 需求洞察</a>
+    <a href="{{ url_for('design.design_trends') }}" class="menu-item"><span class="icon">📊</span> 设计趋势分析管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">文化传承</div>
+    <a href="{{ url_for('design.inheritors') }}" class="menu-item"><span class="icon">👤</span> 非遗传承人管理</a>
+    <a href="{{ url_for('design.cultural_knowledge') }}" class="menu-item active"><span class="icon">📖</span> 民族文化知识管理</a>
+    <a href="{{ url_for('design.teaching_courses') }}" class="menu-item"><span class="icon">🎓</span> 工艺教学课程管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">智能设计工具</div>
+    <a href="{{ url_for('design.pattern_generator') }}" class="menu-item"><span class="icon">🎨</span> 纹样生成</a>
+    <a href="{{ url_for('design.smart_design') }}" class="menu-item"><span class="icon">🤖</span> 智能生成设计管理</a>
+    <a href="{{ url_for('design.design_efficiency') }}" class="menu-item"><span class="icon">⚡</span> 设计效能</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">订单管理</div>
+    <a href="{{ url_for('design.custom_orders') }}" class="menu-item"><span class="icon">📋</span> 定制订单跟踪管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">设计素材库</div>
+    <a href="{{ url_for('design.pattern_materials') }}" class="menu-item"><span class="icon">🖼️</span> 民族图案素材管理</a>
+    <a href="{{ url_for('design.copyrights') }}" class="menu-item"><span class="icon">©️</span> 数字版权登记管理</a>
+</div>
+<div class="menu-group">
+    <div class="menu-title">系统设置</div>
+    <a href="{{ url_for('design.user_preferences') }}" class="menu-item"><span class="icon">⚙️</span> 偏好自适应调控</a>
+</div>
+{% endblock %}
+
+{% block page_title %}民族文化知识管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="search-bar">
+        <input type="text" placeholder="知识标题/分类" value="{{ search }}" id="searchInput">
+        <select>
+            <option value="">全部民族</option>
+            <option value="汉族">汉族</option>
+            <option value="苗族">苗族</option>
+            <option value="藏族">藏族</option>
+            <option value="彝族">彝族</option>
+            <option value="壮族">壮族</option>
+        </select>
+        <button class="btn btn-primary" onclick="doSearch()">🔍 搜索</button>
+        <button class="btn btn-secondary" onclick="clearSearch()">🔄 清空</button>
+    </div>
+    
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openAddModal()">+ 新增知识条目</button>
+        <button class="btn btn-secondary">📚 按分类浏览</button>
+        <button class="btn btn-secondary">📊 知识统计</button>
+    </div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>编号</th>
+                <th>知识标题</th>
+                <th>分类</th>
+                <th>所属民族</th>
+                <th>内容摘要</th>
+                <th>来源</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for k in knowledge %}
+            <tr>
+                <td>{{ k.knowledge_id }}</td>
+                <td><strong>{{ k.title }}</strong></td>
+                <td><span class="status-tag status-info">{{ k.category or '-' }}</span></td>
+                <td>{{ k.ethnic_group or '-' }}</td>
+                <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ k.content or '-' }}</td>
+                <td style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ k.source or '-' }}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="openEditModal({{ k.id }}, '{{ k.knowledge_id }}', '{{ k.title }}', '{{ k.category or '' }}', '{{ k.ethnic_group or '' }}', '{{ k.content or '' }}', '{{ k.source or '' }}')">编辑</button>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align: center; color: #999; padding: 40px;">暂无文化知识数据</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('design.cultural_knowledge', page=pagination.prev_num, search=search) }}">上一页</a>
+        {% endif %}
+        <span>共 {{ pagination.total }} 条</span>
+        {% if pagination.has_next %}
+        <a href="{{ url_for('design.cultural_knowledge', page=pagination.next_num, search=search) }}">下一页</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- 新增/编辑模态框 -->
+<div class="modal-overlay" id="modal">
+    <div class="modal" style="width: 600px;">
+        <div class="modal-header">
+            <span class="modal-title" id="modalTitle">新增文化知识</span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="form" method="POST">
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group"><label>知识编号</label><input type="text" name="knowledge_id" id="f_id" required></div>
+                    <div class="form-group"><label>知识标题 *</label><input type="text" name="title" id="f_title" required></div>
+                    <div class="form-group"><label>分类</label><input type="text" name="category" id="f_category" placeholder="如：民俗传说、工艺技法、历史典故"></div>
+                    <div class="form-group"><label>所属民族</label><input type="text" name="ethnic_group" id="f_ethnic"></div>
+                    <div class="form-group full-width"><label>知识内容</label><textarea name="content" id="f_content" rows="4" placeholder="详细内容描述"></textarea></div>
+                    <div class="form-group full-width"><label>信息来源</label><input type="text" name="source" id="f_source" placeholder="文献/书籍/传承人口述等"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button type="submit" class="btn btn-primary">确定保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function doSearch() {
+    const search = document.getElementById('searchInput').value;
+    window.location.href = '/design/cultural-knowledge?search=' + encodeURIComponent(search);
+}
+function clearSearch() {
+    window.location.href = '/design/cultural-knowledge';
+}
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = '新增文化知识';
+    document.getElementById('form').action = "{{ url_for('design.add_cultural_knowledge') }}";
+    document.getElementById('form').reset();
+    document.getElementById('modal').classList.add('active');
+}
+function openEditModal(id, kid, title, category, ethnic, content, source) {
+    document.getElementById('modalTitle').textContent = '编辑文化知识';
+    document.getElementById('form').action = '/design/cultural-knowledge/' + id + '/edit';
+    document.getElementById('f_id').value = kid;
+    document.getElementById('f_title').value = title;
+    document.getElementById('f_category').value = category;
+    document.getElementById('f_ethnic').value = ethnic;
+    document.getElementById('f_content').value = content;
+    document.getElementById('f_source').value = source;
+    document.getElementById('modal').classList.add('active');
+}
+function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+}
+</script>
+{% endblock %}
